@@ -204,9 +204,19 @@ public class GrpcClientFactory {
 			Set<Class<?>> allTypes = new HashSet<>();
 			allTypes.addAll(Set.of(this.types));
 			for (String basePackage : packages) {
-				// TODO: find a global factory default if scanning and only add the types
-				// that it supports
-				allTypes.addAll(SCANNER.scan(basePackage, AbstractStub.class));
+				for (Class<?> type : SCANNER.scan(basePackage, AbstractStub.class)) {
+					StubFactory<?> factory = findDefaultFactory(this.factory, type);
+					if (factory != null) {
+						if (factory.supports(type)) {
+							allTypes.add(type);
+						}
+					}
+					else {
+						// Maybe there is a factory in the context that supports this
+						// type?
+						allTypes.add(type);
+					}
+				}
 			}
 			@SuppressWarnings("unchecked")
 			Class<? extends AbstractStub<?>>[] newTypes = allTypes.toArray(new Class[0]);
