@@ -15,6 +15,7 @@
  */
 package org.springframework.grpc.client;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,14 +24,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
-import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.grpc.internal.ClasspathScanner;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 import io.grpc.ManagedChannel;
@@ -46,7 +48,7 @@ import io.grpc.stub.AbstractStub;
  */
 public class GrpcClientFactory {
 
-	private static Map<Class<?>, StubFactory<?>> DEFAULT_FACTORIES = new HashMap<>();
+	private static final Set<Class<?>> DEFAULT_FACTORIES = new HashSet<>();
 
 	private Map<Class<?>, StubFactory<?>> factories = new HashMap<>();
 
@@ -55,13 +57,11 @@ public class GrpcClientFactory {
 	private Map<String, Supplier<ManagedChannel>> options = new HashMap<>();
 
 	static {
-		stubs(new BlockingStubFactory());
-		stubs(new BlockingV2StubFactory());
-		stubs(new FutureStubFactory());
-		stubs(new ReactorStubFactory());
-		stubs(new SimpleStubFactory());
-		SpringFactoriesLoader.loadFactories(StubFactory.class, GrpcClientFactory.class.getClassLoader())
-			.forEach(GrpcClientFactory::stubs);
+		stubs(BlockingStubFactory.class);
+		stubs(BlockingV2StubFactory.class);
+		stubs(FutureStubFactory.class);
+		stubs(ReactorStubFactory.class);
+		stubs(SimpleStubFactory.class);
 	}
 
 	public GrpcClientFactory(ApplicationContext context) {
@@ -90,8 +90,8 @@ public class GrpcClientFactory {
 		this.options.put(target, () -> channels().createChannel(target, options));
 	}
 
-	private static void stubs(StubFactory<? extends AbstractStub<?>> factory) {
-		DEFAULT_FACTORIES.put(factory.getClass(), factory);
+	private static void stubs(Class<? extends StubFactory<?>> factory) {
+		DEFAULT_FACTORIES.add(factory);
 	}
 
 	private StubFactory<?> findFactory(Class<?> factoryType, Class<?> type) {
@@ -99,18 +99,48 @@ public class GrpcClientFactory {
 			for (StubFactory<?> factory : this.context.getBeansOfType(StubFactory.class).values()) {
 				this.factories.put(factory.getClass(), factory);
 			}
-			for (StubFactory<?> factory : DEFAULT_FACTORIES.values()) {
-				if (!this.factories.containsKey(factory.getClass())) {
-					this.context.getAutowireCapableBeanFactory().initializeBean(factory, factory.getClass().getName());
-					this.factories.put(factory.getClass(), factory);
+			for (Class<?> factory : DEFAULT_FACTORIES) {
+				if (this.factories.containsKey(factory)) {
+					continue;
 				}
+				this.factories.put(factory,
+						(StubFactory<?>) this.context.getAutowireCapableBeanFactory().createBean(factory));
 			}
 		}
 		return findFactory(this.factories, factoryType, type);
 	}
 
-	private static StubFactory<?> findDefaultFactory(Class<?> factoryType, Class<?> type) {
-		return findFactory(DEFAULT_FACTORIES, factoryType, type);
+	private static Class<?> findDefaultFactory(Class<?> factoryType, Class<?> type) {
+		if (factoryType != null && factoryType != UnspecifiedStubFactory.class) {
+			return supports(factoryType, type) ? factoryType : null;
+		}
+		for (Class<?> factory : DEFAULT_FACTORIES) {
+			if (supports(factory, type)) {
+				return factory;
+			}
+		}
+		return null;
+	}
+
+	private static boolean supports(Class<?> factory, Class<?> type) {
+		Method method = ReflectionUtils.findMethod(factory, "supports", Class.class);
+		boolean supports = false;
+		if (method != null) {
+			try {
+				supports = (boolean) ReflectionUtils.invokeMethod(method, null, type);
+			}
+			catch (Exception e) {
+				try {
+					// TODO: drop support for non-static methods
+					supports = (boolean) ReflectionUtils.invokeMethod(method, BeanUtils.instantiateClass(factory),
+							type);
+				}
+				catch (Exception ex) {
+					// Ignore
+				}
+			}
+		}
+		return supports;
 	}
 
 	private static StubFactory<?> findFactory(Map<Class<?>, StubFactory<?>> values, Class<?> factoryType,
@@ -141,8 +171,7 @@ public class GrpcClientFactory {
 
 	public static void register(BeanDefinitionRegistry registry, GrpcClientRegistrationSpec spec) {
 		for (Class<?> type : spec.types()) {
-			StubFactory<?> factory = GrpcClientFactory.findDefaultFactory(spec.factory(), type);
-			if (factory == null) {
+			if (GrpcClientFactory.findDefaultFactory(spec.factory(), type) == null) {
 				continue;
 			}
 			RootBeanDefinition beanDef = (RootBeanDefinition) BeanDefinitionBuilder.rootBeanDefinition(type)
@@ -205,15 +234,7 @@ public class GrpcClientFactory {
 			allTypes.addAll(Set.of(this.types));
 			for (String basePackage : packages) {
 				for (Class<?> type : SCANNER.scan(basePackage, AbstractStub.class)) {
-					StubFactory<?> factory = findDefaultFactory(this.factory, type);
-					if (factory != null) {
-						if (factory.supports(type)) {
-							allTypes.add(type);
-						}
-					}
-					else {
-						// Maybe there is a factory in the context that supports this
-						// type?
+					if (findDefaultFactory(this.factory, type) != null) {
 						allTypes.add(type);
 					}
 				}
