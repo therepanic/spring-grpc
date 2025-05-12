@@ -79,6 +79,9 @@ In this example, instead of scanning for all stubs, we register a specific stub 
 The prefix `secure` is used as a bean definition name prefix, so the resulting bean definition in this case is "secureSimpleBlockingStub".
 This feature is useful when you want to have multiple instances of the same stub class with different configurations.
 
+If you have a custom `StubFactory` then add it as a `@Bean` and ensure that the bean definition has the correct concrete type. Then refer to that in the `@ImportGrpcClients` as its factory type. A custom factory type usually has a static method `supports(Class<?> type)` returning a boolean indicating whether the factory can create a stub of the given type. If it does not have the static method, then the factory will be used for all explicit stub types listed (but it cannot be used in a scan). The `supports` method has to be
+static because it is used before the factory is created, to generate bean definitions for the stubs.
+
 == Create a Client Manually
 
 Instead of using the `@ImportGrpcClients` or `GrpcClientFactory` features, we can create a client `@Bean` manually.

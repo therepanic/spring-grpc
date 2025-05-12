@@ -13,6 +13,11 @@
 	</profiles>
 	<servers>
 		<server>
+			<id>central</id>
+			<username>${env.central_username}</username>
+			<password>${env.central_password}</password>
+		</server>
+		<server>
 			<id>sonatype-nexus-staging</id>
 			<username>${env.sonatype_username}</username>
 			<password>${env.sonatype_password}</password>

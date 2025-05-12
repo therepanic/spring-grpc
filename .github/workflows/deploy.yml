@@ -26,6 +26,8 @@ jobs:
         spring_password: ${{ secrets.ARTIFACTORY_PASSWORD }}
         sonatype_username: ${{ secrets.OSSRH_S01_TOKEN_USERNAME }}
         sonatype_password: ${{ secrets.OSSRH_S01_TOKEN_PASSWORD }}
+        central_username: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
+        central_password: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
         signing_key: ${{ secrets.GPG_PRIVATE_KEY }}
         passphrase: ${{ secrets.GPG_PASSPHRASE }}
       run: |
