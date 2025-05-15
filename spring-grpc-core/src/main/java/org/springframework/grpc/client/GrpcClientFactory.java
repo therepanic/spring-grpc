@@ -184,6 +184,9 @@ public class GrpcClientFactory {
 	private static boolean supports(Class<?> factory, Class<?> type) {
 		// To avoid needing to instantiate the factory we use reflection to check for a
 		// static supports() method. If it exists we call it.
+		if (factory == null) {
+			return false;
+		}
 		Method method = ReflectionUtils.findMethod(factory, "supports", Class.class);
 		boolean supports = false;
 		if (method != null) {
@@ -260,17 +263,18 @@ public class GrpcClientFactory {
 			Set<Class<?>> allTypes = new HashSet<>();
 			allTypes.addAll(Set.of(this.types));
 			for (String basePackage : this.packages) {
+				Class<?> factoryToUse = this.factory == null ? BlockingStubFactory.class : this.factory;
 				TypeFilter filter = new TypeFilter() {
 					@Override
 					public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory)
 							throws IOException {
 						Class<?> type = ClassUtils.resolveClassName(metadataReader.getClassMetadata().getClassName(),
 								ClasspathScanner.class.getClassLoader());
-						return supports(GrpcClientRegistrationSpec.this.factory, type);
+						return supports(factoryToUse, type);
 					}
 				};
 				for (Class<?> type : SCANNER.scan(basePackage, filter)) {
-					if (findDefaultFactory(registry, this.factory, type) != null) {
+					if (findDefaultFactory(registry, factoryToUse, type) != null) {
 						allTypes.add(type);
 					}
 				}

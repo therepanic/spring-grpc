@@ -79,4 +79,29 @@ public class GrpcClientApplicationTests {
 
 	}
 
+	@Nested
+	@SpringBootTest
+	@AutoConfigureInProcessTransport
+	class ExplicitImportClientsWithNoFactory {
+
+		@Autowired
+		private ApplicationContext context;
+
+		@Test
+		void stubOfCorrectTypeIsCreated() {
+			assertThat(context.containsBeanDefinition("simpleBlockingStub")).isTrue();
+			assertThat(context.getBean(SimpleGrpc.SimpleBlockingStub.class)).isNotNull();
+			assertThat(context.containsBeanDefinition("simpleStub")).isFalse();
+			assertThat(context.containsBeanDefinition("simpleFutureStub")).isFalse();
+			assertThat(context.getBeanNamesForType(AbstractStub.class)).hasSize(1);
+		}
+
+		@TestConfiguration
+		@ImportGrpcClients
+		static class TestConfig {
+
+		}
+
+	}
+
 }
