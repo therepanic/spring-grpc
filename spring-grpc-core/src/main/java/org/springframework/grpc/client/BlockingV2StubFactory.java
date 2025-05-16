@@ -26,7 +26,7 @@ public class BlockingV2StubFactory extends AbstractStubFactory<AbstractBlockingS
 
 	@Override
 	protected String methodName() {
-		return "newBlockingStub";
+		return "newBlockingV2Stub";
 	}
 
 }

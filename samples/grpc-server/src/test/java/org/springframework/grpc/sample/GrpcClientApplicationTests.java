@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
+import org.springframework.grpc.client.BlockingV2StubFactory;
 import org.springframework.grpc.client.FutureStubFactory;
 import org.springframework.grpc.client.ImportGrpcClients;
 import org.springframework.grpc.sample.proto.SimpleGrpc;
@@ -73,6 +74,31 @@ public class GrpcClientApplicationTests {
 
 		@TestConfiguration
 		@ImportGrpcClients(basePackageClasses = SimpleGrpc.class, factory = FutureStubFactory.class)
+		static class TestConfig {
+
+		}
+
+	}
+
+	@Nested
+	@SpringBootTest(properties = "spring.grpc.client.default-channel.address=0.0.0.0:9090")
+	@AutoConfigureInProcessTransport
+	class BLockingV2AutowiredClients {
+
+		@Autowired
+		private ApplicationContext context;
+
+		@Test
+		void stubOfCorrectTypeIsCreated() {
+			assertThat(context.containsBeanDefinition("simpleBlockingV2Stub")).isTrue();
+			assertThat(context.getBean(SimpleGrpc.SimpleBlockingV2Stub.class)).isNotNull();
+			assertThat(context.containsBeanDefinition("simpleStub")).isFalse();
+			assertThat(context.containsBeanDefinition("simpleBlockingStub")).isFalse();
+			assertThat(context.getBeanNamesForType(AbstractStub.class)).hasSize(1);
+		}
+
+		@TestConfiguration
+		@ImportGrpcClients(basePackageClasses = SimpleGrpc.class, factory = BlockingV2StubFactory.class)
 		static class TestConfig {
 
 		}
