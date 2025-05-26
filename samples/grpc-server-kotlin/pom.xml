@@ -85,13 +85,6 @@
 
 	<build>
 		<sourceDirectory>src/main/kotlin</sourceDirectory>
-		<extensions>
-			<extension>
-				<groupId>kr.motd.maven</groupId>
-				<artifactId>os-maven-plugin</artifactId>
-				<version>1.7.1</version>
-			</extension>
-		</extensions>
 		<plugins>
 			<plugin>
 				<groupId>org.jetbrains.kotlin</groupId>
@@ -158,7 +151,6 @@
 							<groupId>io.grpc</groupId>
 							<artifactId>protoc-gen-grpc-java</artifactId>
 							<version>${grpc.version}</version>
-							<classifier>${os.detected.classifier}</classifier>
 							<options>jakarta_omit,@generated=omit</options>
 						</binaryMavenPlugin>
 					</binaryMavenPlugins>
