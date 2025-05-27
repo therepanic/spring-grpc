@@ -54,10 +54,7 @@ protobuf {
     }
     generateProtoTasks {
         all()*.plugins {
-            grpc {
-                option 'jakarta_omit'
-                option '@generated=omit'
-            }
+            grpc {}
         }
     }
 }
