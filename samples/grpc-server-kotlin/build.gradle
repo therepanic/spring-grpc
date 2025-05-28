@@ -68,7 +68,10 @@ protobuf {
     }
     generateProtoTasks {
         all()*.plugins {
-            grpc {}
+            grpc {
+                option 'jakarta_omit'
+                option '@generated=omit'
+            }
             grpckt {
                 outputSubDir = "kotlin"
             }
