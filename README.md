@@ -9,7 +9,7 @@ For further information go to our [Spring gRPC reference documentation](https://
 
 # Getting Started
 
-This section offers jumping off points for how to get started using Spring gRPC. There is a simple sample project in the `samples` directory (e.g. [`grpc-server`](https://github.com/spring-projects/spring-grpc/tree/main/samples/grpc-server)). You can run it with `./mvnw spring-boot:run` or `./gradlew bootRun`. You will see the following code in that sample.
+This section offers jumping off points for how to get started using Spring gRPC. There is a simple sample project in the `samples` directory (e.g. [`grpc-server`](https://github.com/spring-projects/spring-grpc/tree/main/samples/grpc-server)). You can run it with `mvn spring-boot:run` or `gradle bootRun`. You will see the following code in that sample.
 
 Want to get started? Let’s speedrun a working service.
 
@@ -19,15 +19,13 @@ Generate the project and unzip the downloaded result.
 
 Open it in your IDE in the usual way. E.g. if you’re using IntelliJ IDEA: `idea pom.xml`; or for VSCode `code .`.
 
-Define a `.proto` service definition file `src/main/proto/hello.proto` with the following contents:
-
-IMPORTANT:  Be sure to change the `java_package` to the one you chose in Spring Initializr
+Define a `.proto` service definition file `src/main/protobuf/hello.proto` with the following contents:
 
 ```proto
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "<your-package-name-goes-here>.proto";
+option java_package = "org.springframework.grpc.sample.proto";
 option java_outer_classname = "HelloWorldProto";
 
 // The greeting service definition.
@@ -60,15 +58,7 @@ or
 ./gradlew build
 ```
 
-Two new folders will be generated containing the source code for the stubs.
-
-_For Maven_: `target/generated-sources/protobuf/grpc-java` and `target/generated-sources/protobuf/java`.
- 
-_For Gradle_: `build/generated/source/proto/main/grpc` and `build/generated/source/proto/main/java`) 
-
-You may need to instruct your IDE to mark them as  source roots.
-In IntelliJ IDEA, right-click the folder, choose `Mark Directory As` -> `Generated Source Root`.
-Eclipse or VSCode will add them automatically for you.
+You’ll get two new folders in the `target` directory (or `build` for Gradle): `target/target/generated-sources/protobuf/grpc-java` and `target/target/generated-sources/protobuf/java`. You may need to instruct your IDE to mark them as  source roots. In IntelliJ IDEA, you’d right click the folder, choose `Mark Directory As` -> `Generated Source Root`. Eclipse or VSCode will add them automatically for you.
 
 Now you can implement a service based on the generated stubs:
 
@@ -122,7 +112,7 @@ Run the program in the usual way:
 or
 
 ```shell
-./gradlew bootRun
+./gradle bootRun
 ```
 
 You can try it out using a gRPC client like `grpcurl`:
@@ -254,7 +244,7 @@ public class GrpcServerApplication {
 }
 ```
 
-Run it from your IDE, or on the command line with `./mvnw spring-boot:run` or `./gradlew bootRun`.
+Run it from your IDE, or on the command line with `mvn spring-boot:run` or `gradle bootRun`.
 
 ### gRPC Client
 

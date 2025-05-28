@@ -53,6 +53,13 @@ test {
     outputs.upToDateWhen { false }
 }
 
+sourceSets {
+  main {
+    proto {
+      srcDir 'src/main/protobuf'
+    }
+  }
+}
 
 protobuf {
     protoc {

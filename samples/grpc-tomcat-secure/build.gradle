@@ -31,16 +31,24 @@ dependencies {
     implementation 'org.springframework.grpc:spring-grpc-server-web-spring-boot-starter'
     implementation 'io.grpc:grpc-services'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.grpc:spring-grpc-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 test {
-	useJUnitPlatform()
-	testLogging.showStandardStreams = true
-	outputs.upToDateWhen { false }
+    useJUnitPlatform()
+    testLogging.showStandardStreams = true
+    outputs.upToDateWhen { false }
+}
+
+sourceSets {
+  main {
+    proto {
+      srcDir 'src/main/protobuf'
+    }
+  }
 }
 
 protobuf {

@@ -38,9 +38,17 @@ dependencies {
 }
 
 test {
-	useJUnitPlatform()
-	testLogging.showStandardStreams = true
-	outputs.upToDateWhen { false }
+    useJUnitPlatform()
+    testLogging.showStandardStreams = true
+    outputs.upToDateWhen { false }
+}
+
+sourceSets {
+  main {
+    proto {
+      srcDir 'src/main/protobuf'
+    }
+  }
 }
 
 protobuf {
