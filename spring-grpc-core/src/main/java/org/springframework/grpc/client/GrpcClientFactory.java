@@ -18,14 +18,12 @@ package org.springframework.grpc.client;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -42,14 +40,11 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
-import io.grpc.ManagedChannel;
 import io.grpc.stub.AbstractStub;
 
 /**
  * A factory of gRPC clients that can be used to create client stubs as beans in an
- * application context. The best way to interact with the factory is to declare a bean of
- * type {@link GrpcClientFactoryCustomizer} in the application context. The customizer
- * will be called with the factory before it is used to create the beans.
+ * application context.
  *
  * @author Dave Syer
  */
@@ -62,8 +57,6 @@ public class GrpcClientFactory {
 	private Map<Class<?>, StubFactory<?>> factories = new LinkedHashMap<>();
 
 	private final ApplicationContext context;
-
-	private Map<String, Supplier<ManagedChannel>> options = new HashMap<>();
 
 	static {
 		DEFAULT_FACTORIES.add((Class<? extends StubFactory<?>>) BlockingStubFactory.class);
@@ -80,23 +73,8 @@ public class GrpcClientFactory {
 	public <T> T getClient(String target, Class<T> type, Class<?> factory) {
 		@SuppressWarnings("unchecked")
 		StubFactory<T> stubs = (StubFactory<T>) findFactory(factory, type);
-		Supplier<ManagedChannel> channel = this.options.get(target);
-		if (channel == null) {
-			channel = () -> channels().createChannel(target, ChannelBuilderOptions.defaults());
-		}
-		Supplier<ManagedChannel> finalChannel = channel;
-		T client = (T) stubs.create(() -> finalChannel.get(), type);
+		T client = (T) stubs.create(() -> channels().createChannel(target, ChannelBuilderOptions.defaults()), type);
 		return client;
-	}
-
-	/**
-	 * Register a channel factory for the given target. The channel will be created using
-	 * the given options. If no options are provided, the default options will be used.
-	 * @param target the name (or base url) of the target
-	 * @param options the options to use to create the channel
-	 */
-	public void channel(String target, ChannelBuilderOptions options) {
-		this.options.put(target, () -> channels().createChannel(target, options));
 	}
 
 	private StubFactory<?> findFactory(Class<?> factoryType, Class<?> type) {

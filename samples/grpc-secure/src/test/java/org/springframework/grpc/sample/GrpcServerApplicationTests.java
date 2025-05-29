@@ -3,7 +3,6 @@ package org.springframework.grpc.sample;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -15,8 +14,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.grpc.client.ChannelBuilderOptions;
-import org.springframework.grpc.client.GrpcClientFactoryCustomizer;
+import org.springframework.grpc.client.GrpcChannelBuilderCustomizer;
 import org.springframework.grpc.client.ImportGrpcClients;
 import org.springframework.grpc.client.interceptor.security.BasicAuthenticationInterceptor;
 import org.springframework.grpc.sample.proto.HelloReply;
@@ -113,9 +111,9 @@ public class GrpcServerApplicationTests {
 	static class ExtraConfiguration {
 
 		@Bean
-		GrpcClientFactoryCustomizer basicStubs() {
-			return registry -> registry.channel("secure", ChannelBuilderOptions.defaults()
-				.withInterceptors(List.of(new BasicAuthenticationInterceptor("user", "user"))));
+		GrpcChannelBuilderCustomizer<?> basicStubsCustomizer() {
+			return GrpcChannelBuilderCustomizer.matching("secure",
+					builder -> builder.intercept(new BasicAuthenticationInterceptor("user", "user")));
 		}
 
 	}

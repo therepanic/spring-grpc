@@ -1,15 +1,11 @@
 package org.springframework.grpc.sample;
 
-import io.grpc.Status.Code;
-import io.grpc.StatusRuntimeException;
-import io.grpc.reflection.v1.ServerReflectionGrpc;
-import io.grpc.reflection.v1.ServerReflectionRequest;
-import io.grpc.reflection.v1.ServerReflectionResponse;
-import io.grpc.stub.StreamObserver;
+import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
@@ -23,8 +19,7 @@ import org.springframework.experimental.boot.server.exec.CommonsExecWebServerFac
 import org.springframework.experimental.boot.server.exec.MavenClasspathEntry;
 import org.springframework.experimental.boot.test.context.EnableDynamicProperty;
 import org.springframework.experimental.boot.test.context.OAuth2ClientProviderIssuerUri;
-import org.springframework.grpc.client.ChannelBuilderOptions;
-import org.springframework.grpc.client.GrpcClientFactoryCustomizer;
+import org.springframework.grpc.client.GrpcChannelBuilderCustomizer;
 import org.springframework.grpc.client.ImportGrpcClients;
 import org.springframework.grpc.client.interceptor.security.BearerTokenAuthenticationInterceptor;
 import org.springframework.grpc.sample.proto.HelloReply;
@@ -36,8 +31,12 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.test.annotation.DirtiesContext;
 
-import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import io.grpc.Status.Code;
+import io.grpc.StatusRuntimeException;
+import io.grpc.reflection.v1.ServerReflectionGrpc;
+import io.grpc.reflection.v1.ServerReflectionRequest;
+import io.grpc.reflection.v1.ServerReflectionResponse;
+import io.grpc.stub.StreamObserver;
 
 @SpringBootTest(properties = { "spring.grpc.server.port=0",
 		"spring.grpc.client.default-channel.address=static://0.0.0.0:${local.grpc.port}" })
@@ -129,9 +128,9 @@ public class GrpcServerApplicationTests {
 		}
 
 		@Bean
-		GrpcClientFactoryCustomizer stubs(ObjectProvider<ClientRegistrationRepository> context) {
-			return registry -> registry.channel("secure", ChannelBuilderOptions.defaults()
-				.withInterceptors(List.of(new BearerTokenAuthenticationInterceptor(() -> token(context)))));
+		GrpcChannelBuilderCustomizer<?> stubs(ObjectProvider<ClientRegistrationRepository> context) {
+			return GrpcChannelBuilderCustomizer.matching("secure",
+					builder -> builder.intercept(new BearerTokenAuthenticationInterceptor(() -> token(context))));
 		}
 
 		private String token(ObjectProvider<ClientRegistrationRepository> context) {

@@ -16,6 +16,8 @@
 
 package org.springframework.grpc.client;
 
+import java.util.function.Consumer;
+
 import io.grpc.ManagedChannelBuilder;
 
 /**
@@ -51,6 +53,15 @@ public interface GrpcChannelBuilderCustomizer<T extends ManagedChannelBuilder<T>
 	 */
 	static <T extends ManagedChannelBuilder<T>> GrpcChannelBuilderCustomizer<T> defaults() {
 		return (__, ___) -> {
+		};
+	}
+
+	static <T extends ManagedChannelBuilder<T>> GrpcChannelBuilderCustomizer<T> matching(String pattern,
+			Consumer<ManagedChannelBuilder<T>> consumer) {
+		return (authority, channel) -> {
+			if (pattern.matches(authority)) {
+				consumer.accept(channel);
+			}
 		};
 	}
 

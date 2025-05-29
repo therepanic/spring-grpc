@@ -25,9 +25,7 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Import;
 
 /**
- * Annotation to create gRPC client beans. If you want more control over the creation of
- * the clients, or you don't want to use the annotation, you can use a bean of type
- * {@link GrpcClientFactoryCustomizer} instead.
+ * Annotation to create gRPC client beans.
  *
  * @author Dave Syer
  */

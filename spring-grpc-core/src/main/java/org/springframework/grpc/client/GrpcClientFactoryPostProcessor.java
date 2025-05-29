@@ -15,14 +15,9 @@
  */
 package org.springframework.grpc.client;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 /**
  * Post processor for {@link GrpcClientFactory} that applies the customizers and provides
@@ -44,12 +39,6 @@ public class GrpcClientFactoryPostProcessor implements ApplicationContextAware {
 		}
 		this.initialized = true;
 		this.registry = new GrpcClientFactory(context);
-		if (context.getBeanNamesForType(GrpcClientFactoryCustomizer.class).length > 0) {
-			List<GrpcClientFactoryCustomizer> values = new ArrayList<>(
-					context.getBeansOfType(GrpcClientFactoryCustomizer.class).values());
-			AnnotationAwareOrderComparator.sort(values);
-			values.forEach(customizer -> customizer.customize(this.registry));
-		}
 	}
 
 	<T> T getClient(String target, Class<T> type, Class<?> factory) {
@@ -59,12 +48,7 @@ public class GrpcClientFactoryPostProcessor implements ApplicationContextAware {
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		if (applicationContext instanceof GenericApplicationContext generic) {
-			this.context = generic;
-		}
-		else {
-			throw new IllegalStateException("ApplicationContext must be a GenericApplicationContext");
-		}
+		this.context = applicationContext;
 	}
 
 }
