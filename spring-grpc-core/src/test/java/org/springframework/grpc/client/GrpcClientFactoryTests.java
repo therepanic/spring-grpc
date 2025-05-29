@@ -48,7 +48,8 @@ public class GrpcClientFactoryTests {
 		Mockito.when(channelFactory.createChannel(Mockito.anyString(), Mockito.any()))
 			.thenReturn(Mockito.mock(ManagedChannel.class));
 		context.registerBean(GrpcChannelFactory.class, () -> channelFactory);
-		factory = new GrpcClientFactory(context);
+		factory = new GrpcClientFactory();
+		factory.setApplicationContext(context);
 	}
 
 	@Test
@@ -85,7 +86,8 @@ public class GrpcClientFactoryTests {
 		context.registerBean(GrpcChannelFactory.class, () -> channelFactory);
 		GrpcClientFactory.register(context, new GrpcClientRegistrationSpec("local", new Class[] { OtherStub.class }));
 		context.refresh();
-		factory = new GrpcClientFactory(context);
+		factory = new GrpcClientFactory();
+		factory.setApplicationContext(context);
 		assertThat(factory.getClient("local", OtherStub.class, null)).isNotNull();
 	}
 

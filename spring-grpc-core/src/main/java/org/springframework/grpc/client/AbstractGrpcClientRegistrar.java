@@ -26,12 +26,12 @@ public abstract class AbstractGrpcClientRegistrar implements ImportBeanDefinitio
 	@Override
 	public final void registerBeanDefinitions(AnnotationMetadata meta, BeanDefinitionRegistry registry) {
 		GrpcClientRegistrationSpec[] specs = collect(meta);
-		String name = GrpcClientFactoryPostProcessor.class.getName();
+		String name = GrpcClientFactory.class.getName();
 		for (GrpcClientRegistrationSpec spec : specs) {
 			GrpcClientFactory.register(registry, spec);
 		}
 		if (!registry.containsBeanDefinition(name)) {
-			registry.registerBeanDefinition(name, new RootBeanDefinition(GrpcClientFactoryPostProcessor.class));
+			registry.registerBeanDefinition(name, new RootBeanDefinition(GrpcClientFactory.class));
 		}
 	}
 

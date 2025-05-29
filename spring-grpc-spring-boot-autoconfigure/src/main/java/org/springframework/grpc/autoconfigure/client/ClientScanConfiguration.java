@@ -33,11 +33,11 @@ import org.springframework.grpc.autoconfigure.client.ClientScanConfiguration.Def
 import org.springframework.grpc.autoconfigure.client.GrpcClientProperties.ChannelConfig;
 import org.springframework.grpc.client.AbstractGrpcClientRegistrar;
 import org.springframework.grpc.client.BlockingStubFactory;
+import org.springframework.grpc.client.GrpcClientFactory;
 import org.springframework.grpc.client.GrpcClientFactory.GrpcClientRegistrationSpec;
-import org.springframework.grpc.client.GrpcClientFactoryPostProcessor;
 
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnMissingBean(GrpcClientFactoryPostProcessor.class)
+@ConditionalOnMissingBean(GrpcClientFactory.class)
 @Import(DefaultGrpcClientRegistrations.class)
 public class ClientScanConfiguration {
 

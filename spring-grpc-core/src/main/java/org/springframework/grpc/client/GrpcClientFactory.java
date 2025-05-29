@@ -25,12 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
@@ -48,7 +50,7 @@ import io.grpc.stub.AbstractStub;
  *
  * @author Dave Syer
  */
-public class GrpcClientFactory {
+public class GrpcClientFactory implements ApplicationContextAware {
 
 	private static final Set<Class<?>> DEFAULT_FACTORIES = new LinkedHashSet<>();
 
@@ -56,7 +58,7 @@ public class GrpcClientFactory {
 
 	private Map<Class<?>, StubFactory<?>> factories = new LinkedHashMap<>();
 
-	private final ApplicationContext context;
+	private ApplicationContext context;
 
 	static {
 		DEFAULT_FACTORIES.add((Class<? extends StubFactory<?>>) BlockingStubFactory.class);
@@ -66,8 +68,9 @@ public class GrpcClientFactory {
 		DEFAULT_FACTORIES.add((Class<? extends StubFactory<?>>) SimpleStubFactory.class);
 	}
 
-	public GrpcClientFactory(ApplicationContext context) {
-		this.context = context;
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.context = applicationContext;
 	}
 
 	public <T> T getClient(String target, Class<T> type, Class<?> factory) {
@@ -213,7 +216,7 @@ public class GrpcClientFactory {
 			}
 			RootBeanDefinition beanDef = (RootBeanDefinition) BeanDefinitionBuilder.rootBeanDefinition(type)
 				.setLazyInit(true)
-				.setFactoryMethodOnBean("getClient", GrpcClientFactoryPostProcessor.class.getName())
+				.setFactoryMethodOnBean("getClient", GrpcClientFactory.class.getName())
 				.addConstructorArgValue(spec.target())
 				.addConstructorArgValue(type)
 				.addConstructorArgValue(spec.factory())
