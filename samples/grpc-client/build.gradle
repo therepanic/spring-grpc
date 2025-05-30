@@ -39,14 +39,6 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-sourceSets {
-  main {
-    proto {
-      srcDir 'src/main/protobuf'
-    }
-  }
-}
-
 protobuf {
     protoc {
         artifact = "com.google.protobuf:protoc:${dependencyManagement.importedProperties['protobuf-java.version']}"

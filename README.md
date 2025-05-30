@@ -19,7 +19,7 @@ Generate the project and unzip the downloaded result.
 
 Open it in your IDE in the usual way. E.g. if you’re using IntelliJ IDEA: `idea pom.xml`; or for VSCode `code .`.
 
-Define a `.proto` service definition file `src/main/protobuf/hello.proto` with the following contents:
+Define a `.proto` service definition file `src/main/proto/hello.proto` with the following contents:
 
 ```proto
 syntax = "proto3";
