@@ -57,9 +57,9 @@ or
 
 Two new folders will be generated containing the source code for the stubs.
 
-_For Maven_: `target/generated-sources/protobuf/grpc-java` and `target/generated-sources/protobuf/java`.
+_For Maven_: `target/generated-sources/protobuf/grpc-java` and `target/generated-sources/protobuf/java`
 
-_For Gradle_: `build/generated/source/proto/main/grpc` and `build/generated/source/proto/main/java`)
+_For Gradle_: `build/generated/source/proto/main/grpc` and `build/generated/source/proto/main/java`
 
 You may need to instruct your IDE to mark them as  source roots.
 In IntelliJ IDEA, right-click the folder, choose `Mark Directory As` -> `Generated Source Root`.
