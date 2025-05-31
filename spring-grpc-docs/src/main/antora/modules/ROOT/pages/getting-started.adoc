@@ -13,12 +13,14 @@ Open it in your IDE in the usual way. E.g. if you're using IntelliJ IDEA: `idea 
 
 Define a `.proto` service definition file `src/main/proto/hello.proto` with the following contents:
 
+IMPORTANT:  Be sure to change the `java_package` to the one you chose in Spring Initializr
+
 [source,proto]
 ----
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "org.springframework.grpc.sample.proto";
+option java_package = "<your-package-name-goes-here>.proto";
 option java_outer_classname = "HelloWorldProto";
 
 // The greeting service definition.
@@ -53,7 +55,15 @@ or
 ./gradlew build
 ----
 
-You'll get two new folders in the `target` directory (or `build` for Gradle): `target/target/generated-sources/protobuf/grpc-java` and `target/target/generated-sources/protobuf/java`. You may need to instruct your IDE to mark them as  source roots. In IntelliJ IDEA, you'd right click the folder, choose `Mark Directory As` -> `Generated Source Root`. Eclipse or VSCode will add them automatically for you.
+Two new folders will be generated containing the source code for the stubs.
+
+_For Maven_: `target/generated-sources/protobuf/grpc-java` and `target/generated-sources/protobuf/java`.
+
+_For Gradle_: `build/generated/source/proto/main/grpc` and `build/generated/source/proto/main/java`)
+
+You may need to instruct your IDE to mark them as  source roots.
+In IntelliJ IDEA, right-click the folder, choose `Mark Directory As` -> `Generated Source Root`.
+Eclipse or VSCode will add them automatically for you.
 
 Now you can implement a service based on the generated stubs:
 
@@ -110,7 +120,7 @@ or
 
 [source,shell]
 ----
-./gradle bootRun
+./gradlew bootRun
 ----
 
 You can try it out using a gRPC client like `grpcurl`:
@@ -252,7 +262,7 @@ public class GrpcServerApplication {
 }
 ----
 
-Run it from your IDE, or on the command line with `mvn spring-boot:run` or `gradle bootRun`.
+Run it from your IDE, or on the command line with `./mvnw spring-boot:run` or `./gradlew bootRun`.
 
 === gRPC Client
 

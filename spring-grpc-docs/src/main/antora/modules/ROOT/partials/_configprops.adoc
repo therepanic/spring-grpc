@@ -3,6 +3,7 @@
 
 |spring.grpc.client.channels |  | Map of channels configured by name.
 |spring.grpc.client.default-channel.address | `+++static://localhost:9090+++` | The target address uri to connect to.
+|spring.grpc.client.default-channel.default-deadline |  | The default deadline for RPCs performed on this channel.
 |spring.grpc.client.default-channel.default-load-balancing-policy | `+++round_robin+++` | The default load balancing policy the channel should use.
 |spring.grpc.client.default-channel.enable-keep-alive | `+++false+++` | Whether keep alive is enabled on the channel.
 |spring.grpc.client.default-channel.health.enabled | `+++false+++` | Whether to enable client-side health check for the channel.
@@ -43,9 +44,9 @@
 |spring.grpc.server.port | `+++9090+++` | Server port to listen on. When the value is 0, a random available port is selected. The default is 9090.
 |spring.grpc.server.reflection.enabled | `+++true+++` | Whether to enable Reflection on the gRPC server.
 |spring.grpc.server.security.csrf.enabled | `+++false+++` | Whether to enable CSRF protection on gRPC requests.
-|spring.grpc.server.servlet.enabled | `+++true+++` | Whether to use a servlet server in a servlet-based web application. When the value is false, a native gRPC server will be forced.
+|spring.grpc.server.servlet.enabled | `+++true+++` | Whether to use a servlet server in a servlet-based web application. When the value is false, a native gRPC server will be created as long as one is available, and it will listen on its own port. Should only be needed if the GrpcServlet is on the classpath
 |spring.grpc.server.shutdown-grace-period | `+++30s+++` | Maximum time to wait for the server to gracefully shutdown. When the value is negative, the server waits forever. When the value is 0, the server will force shutdown immediately. The default is 30 seconds.
-|spring.grpc.server.ssl.bundle |  | SSL bundle name.
+|spring.grpc.server.ssl.bundle |  | SSL bundle name. Should match a bundle configured in spring.ssl.bundle.
 |spring.grpc.server.ssl.client-auth | `+++none+++` | Client authentication mode.
 |spring.grpc.server.ssl.enabled |  | Whether to enable SSL support. Enabled automatically if "bundle" is provided unless specified otherwise.
 |spring.grpc.server.ssl.secure | `+++true+++` | Flag to indicate that client authentication is secure (i.e. certificates are checked). Do not set this to false in production.
