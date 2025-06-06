@@ -29,7 +29,7 @@ There is a default named channel that you can configure as `spring.grpc.client.d
 
 == Automatic Client Configuration
 
-The automatic creation of beans for gRPC stubs is switched on by the `@EnableGrpcClients` annotation.
+The automatic creation of beans for gRPC stubs is switched on by the `@ImportGrpcClients` annotation.
 A Spring Boot application will have one of these by default, but you can add your own safely if you want to change the defaults, for instance to change the base type of the stubs or to scan a different package.
 Spring gRPC will scan the application packages for gRPC stubs and automatically create bean definitions, as long as the default channel is configured via `spring.grpc.client.default-channel.*` (it needs at least a target URL to work).
 
