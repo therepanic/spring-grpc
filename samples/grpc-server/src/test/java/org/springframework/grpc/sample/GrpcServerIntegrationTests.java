@@ -44,6 +44,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import io.grpc.ForwardingServerCallListener;
 import io.grpc.ManagedChannel;
+import io.grpc.Metadata;
 import io.grpc.ServerCall.Listener;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status.Code;
@@ -77,18 +78,19 @@ class GrpcServerIntegrationTests {
 		void specificErrorResponse(@Autowired GrpcChannelFactory channels) {
 			SimpleGrpc.SimpleBlockingStub client = SimpleGrpc.newBlockingStub(channels.createChannel("0.0.0.0:0"));
 			assertThat(assertThrows(StatusRuntimeException.class,
-					() -> client.sayHello(HelloRequest.newBuilder().setName("error").build()))
+					() -> client.sayHello(HelloRequest.newBuilder().setName("internal").build()))
 				.getStatus()
-				.getCode()).isEqualTo(Code.INVALID_ARGUMENT);
+				.getCode()).isEqualTo(Code.UNKNOWN);
 		}
 
 		@Test
 		void defaultErrorResponseIsUnknown(@Autowired GrpcChannelFactory channels) {
 			SimpleGrpc.SimpleBlockingStub client = SimpleGrpc.newBlockingStub(channels.createChannel("0.0.0.0:0"));
-			assertThat(assertThrows(StatusRuntimeException.class,
-					() -> client.sayHello(HelloRequest.newBuilder().setName("internal").build()))
-				.getStatus()
-				.getCode()).isEqualTo(Code.UNKNOWN);
+			StatusRuntimeException status = assertThrows(StatusRuntimeException.class,
+					() -> client.sayHello(HelloRequest.newBuilder().setName("error").build()));
+			assertThat(status.getStatus().getCode()).isEqualTo(Code.INVALID_ARGUMENT);
+			assertThat(status.getTrailers().get(Metadata.Key.of("error-code", Metadata.ASCII_STRING_MARSHALLER)))
+				.isNotNull();
 		}
 
 	}

@@ -5,7 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.grpc.server.exception.GrpcExceptionHandler;
 
+import io.grpc.Metadata;
 import io.grpc.Status;
+import io.grpc.StatusException;
 
 @SpringBootApplication
 public class GrpcServerApplication {
@@ -18,7 +20,11 @@ public class GrpcServerApplication {
 	public GrpcExceptionHandler globalInterceptor() {
 		return exception -> {
 			if (exception instanceof IllegalArgumentException) {
-				return Status.INVALID_ARGUMENT.withDescription(exception.getMessage()).asException();
+				Metadata metadata = new Metadata();
+				metadata.put(Metadata.Key.of("error-code", Metadata.ASCII_STRING_MARSHALLER), "INVALID_ARGUMENT");
+				StatusException result = Status.INVALID_ARGUMENT.withDescription(exception.getMessage())
+					.asException(metadata);
+				return result;
 			}
 			return null;
 		};

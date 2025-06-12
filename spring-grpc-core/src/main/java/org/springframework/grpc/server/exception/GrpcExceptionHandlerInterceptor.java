@@ -147,7 +147,7 @@ public class GrpcExceptionHandlerInterceptor implements ServerInterceptor {
 			catch (Throwable e) {
 			}
 			try {
-				this.call.close(status.getStatus(), headers(t));
+				this.call.close(status.getStatus(), headers(status));
 			}
 			catch (Throwable e) {
 				throw new IllegalStateException("Failed to close the call", e);

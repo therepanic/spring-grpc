@@ -36,6 +36,7 @@ public class GrpcExceptionHandledServerCall<ReqT, RespT>
 		if (status.getCode() == Status.Code.UNKNOWN && status.getCause() != null) {
 			final Throwable cause = status.getCause();
 			final StatusException statusException = this.exceptionHandler.handleException(cause);
+			trailers.merge(statusException.getTrailers());
 			super.close(statusException.getStatus(), trailers);
 		}
 		else {
