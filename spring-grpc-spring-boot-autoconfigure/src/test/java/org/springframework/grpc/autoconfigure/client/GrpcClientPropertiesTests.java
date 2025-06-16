@@ -169,6 +169,17 @@ class GrpcClientPropertiesTests {
 			assertThat(defaultChannel.getMaxInboundMetadataSize()).isEqualTo(DataSize.ofBytes(256));
 		}
 
+		@Test
+		void withServiceConfig() {
+			Map<String, String> map = new HashMap<>();
+			// we have to at least bind one property or bind() fails
+			map.put("spring.grpc.client.%s.service-config.something.key".formatted("default-channel"), "value");
+			GrpcClientProperties properties = bindProperties(map);
+			var channel = properties.getDefaultChannel();
+			assertThat(channel.getServiceConfig()).hasSize(1);
+			assertThat(channel.getServiceConfig().get("something")).isInstanceOf(Map.class);
+		}
+
 	}
 
 	@Nested

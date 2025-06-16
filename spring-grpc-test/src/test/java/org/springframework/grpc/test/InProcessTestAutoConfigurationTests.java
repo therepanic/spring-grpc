@@ -62,7 +62,8 @@ class InProcessTestAutoConfigurationTests {
 	@Test
 	void whenTestInProcessEnabledPropIsSetToTrueDoesAutoConfigureBeans() {
 		this.contextRunner()
-			.withPropertyValues("spring.grpc.test.inprocess.enabled=true", "spring.grpc.server.inprocess.name=foo")
+			.withPropertyValues("spring.grpc.test.inprocess.enabled=true", "spring.grpc.server.inprocess.name=foo",
+					"spring.grpc.server.port=0")
 			.run((context) -> {
 				assertThat(context).getBeans(GrpcServerFactory.class)
 					.containsOnlyKeys("testInProcessGrpcServerFactory", "nettyGrpcServerFactory");
@@ -73,18 +74,21 @@ class InProcessTestAutoConfigurationTests {
 
 	@Test
 	void whenTestInProcessEnabledPropIsNotSetDoesNotAutoConfigureBeans() {
-		this.contextRunner().withPropertyValues("spring.grpc.server.inprocess.name=foo").run((context) -> {
-			assertThat(context).getBeans(GrpcServerFactory.class)
-				.containsOnlyKeys("inProcessGrpcServerFactory", "nettyGrpcServerFactory");
-			assertThat(context).getBeans(GrpcChannelFactory.class)
-				.containsOnlyKeys("inProcessGrpcChannelFactory", "nettyGrpcChannelFactory");
-		});
+		this.contextRunner()
+			.withPropertyValues("spring.grpc.server.inprocess.name=foo", "spring.grpc.server.port=0")
+			.run((context) -> {
+				assertThat(context).getBeans(GrpcServerFactory.class)
+					.containsOnlyKeys("inProcessGrpcServerFactory", "nettyGrpcServerFactory");
+				assertThat(context).getBeans(GrpcChannelFactory.class)
+					.containsOnlyKeys("inProcessGrpcChannelFactory", "nettyGrpcChannelFactory");
+			});
 	}
 
 	@Test
 	void whenTestInProcessEnabledPropIsSetToFalseDoesNotAutoConfigureBeans() {
 		this.contextRunner()
-			.withPropertyValues("spring.grpc.test.inprocess.enabled=false", "spring.grpc.server.inprocess.name=foo")
+			.withPropertyValues("spring.grpc.test.inprocess.enabled=false", "spring.grpc.server.inprocess.name=foo",
+					"spring.grpc.server.port=0")
 			.run((context) -> {
 				assertThat(context).getBeans(GrpcServerFactory.class)
 					.containsOnlyKeys("inProcessGrpcServerFactory", "nettyGrpcServerFactory");

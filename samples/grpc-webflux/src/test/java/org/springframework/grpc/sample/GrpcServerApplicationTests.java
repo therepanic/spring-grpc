@@ -15,7 +15,8 @@ import org.springframework.grpc.sample.proto.SimpleGrpc;
 import org.springframework.test.annotation.DirtiesContext;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT,
-		properties = "spring.grpc.client.default-channel.address=0.0.0.0:${local.grpc.port}")
+		properties = { "spring.grpc.client.default-channel.address=0.0.0.0:${local.grpc.port}",
+				"spring.grpc.server.port=0" })
 @DirtiesContext
 public class GrpcServerApplicationTests {
 

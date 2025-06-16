@@ -15,17 +15,20 @@
  */
 package org.springframework.grpc.autoconfigure.client;
 
-import io.grpc.ManagedChannelBuilder;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+
 import org.springframework.boot.context.properties.PropertyMapper;
 import org.springframework.grpc.autoconfigure.client.GrpcClientProperties.ChannelConfig;
 import org.springframework.grpc.client.GrpcChannelBuilderCustomizer;
 import org.springframework.grpc.client.interceptor.DefaultDeadlineSetupClientInterceptor;
 import org.springframework.util.unit.DataSize;
+
+import io.grpc.ManagedChannelBuilder;
 
 /**
  * A {@link GrpcChannelBuilderCustomizer} that maps {@link GrpcClientProperties client
@@ -58,11 +61,14 @@ class ClientPropertiesChannelBuilderCustomizer<T extends ManagedChannelBuilder<T
 		mapper.from(channel.getKeepAliveTimeout()).to(durationProperty(builder::keepAliveTimeout));
 		mapper.from(channel.getIdleTimeout()).to(durationProperty(builder::idleTimeout));
 		mapper.from(channel.isKeepAliveWithoutCalls()).to(builder::keepAliveWithoutCalls);
+		Map<String, Object> defaultServiceConfig = new HashMap<String, Object>(channel.getServiceConfig());
 		if (channel.getHealth().isEnabled()) {
 			String serviceNameToCheck = channel.getHealth().getServiceName() != null
 					? channel.getHealth().getServiceName() : "";
-			Map<String, ?> healthCheckConfig = Map.of("healthCheckConfig", Map.of("serviceName", serviceNameToCheck));
-			builder.defaultServiceConfig(healthCheckConfig);
+			defaultServiceConfig.put("healthCheckConfig", Map.of("serviceName", serviceNameToCheck));
+		}
+		if (!defaultServiceConfig.isEmpty()) {
+			builder.defaultServiceConfig(defaultServiceConfig);
 		}
 		if (channel.getDefaultDeadline() != null && channel.getDefaultDeadline().toMillis() > 0L) {
 			builder.intercept(new DefaultDeadlineSetupClientInterceptor(channel.getDefaultDeadline()));

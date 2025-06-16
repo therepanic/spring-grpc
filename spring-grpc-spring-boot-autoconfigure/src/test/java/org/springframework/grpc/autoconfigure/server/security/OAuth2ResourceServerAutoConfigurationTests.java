@@ -116,7 +116,7 @@ class OAuth2ResourceServerAutoConfigurationTests {
 			.withBean(BindableService.class, () -> service)
 			.withBean("noopServerLifecycle", GrpcServerLifecycle.class, Mockito::mock)
 			.withPropertyValues("spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:9000",
-					"spring.grpc.server.servlet.enabled=false")
+					"spring.grpc.server.servlet.enabled=false", "spring.grpc.server.port=0")
 			.run((context) -> {
 				assertThat(context).hasSingleBean(AuthenticationProcessInterceptor.class);
 			});

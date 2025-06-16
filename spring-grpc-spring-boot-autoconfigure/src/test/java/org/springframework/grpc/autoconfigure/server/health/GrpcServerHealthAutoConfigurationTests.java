@@ -117,6 +117,7 @@ class GrpcServerHealthAutoConfigurationTests {
 			.withBean("grpcServicesDiscoverer", GrpcServiceDiscoverer.class, Mockito::mock)
 			.withBean("sslBundles", SslBundles.class, Mockito::mock)
 			.withBean(BindableService.class, () -> service)
+			.withPropertyValues("spring.grpc.server.port=0")
 			.run((context) -> assertThatBeanDefinitionsContainInOrder(context, GrpcServerHealthAutoConfiguration.class,
 					GrpcServerFactoryAutoConfiguration.class));
 	}

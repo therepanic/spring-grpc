@@ -77,6 +77,7 @@ class GrpcServletAutoConfigurationTests {
 	void whenGrpcServletNotOnClasspathAutoConfigurationIsSkipped() {
 		this.contextRunner()
 			.withClassLoader(new FilteredClassLoader(GrpcServlet.class))
+			.withPropertyValues("spring.grpc.server.port=0")
 			.run((context) -> assertThat(context).doesNotHaveBean(GrpcServletConfiguration.class)
 				.doesNotHaveBean(ServletRegistrationBean.class));
 	}

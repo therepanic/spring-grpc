@@ -138,6 +138,7 @@ class GrpcServerAutoConfigurationTests {
 		GrpcServiceDiscoverer customGrpcServiceDiscoverer = mock(GrpcServiceDiscoverer.class);
 		this.contextRunnerWithLifecyle()
 			.withBean("customGrpcServiceDiscoverer", GrpcServiceDiscoverer.class, () -> customGrpcServiceDiscoverer)
+			.withPropertyValues("spring.grpc.server.port=0")
 			.run((context) -> assertThat(context).getBean(GrpcServiceDiscoverer.class)
 				.isSameAs(customGrpcServiceDiscoverer));
 	}
@@ -145,6 +146,7 @@ class GrpcServerAutoConfigurationTests {
 	@Test
 	void grpcServiceDiscovererAutoConfiguredAsExpected() {
 		this.contextRunnerWithLifecyle()
+			.withPropertyValues("spring.grpc.server.port=0")
 			.run((context) -> assertThat(context).getBean(GrpcServiceDiscoverer.class)
 				.extracting(GrpcServiceDiscoverer::findServices,
 						InstanceOfAssertFactories.list(ServerServiceDefinition.class))
@@ -163,6 +165,7 @@ class GrpcServerAutoConfigurationTests {
 	@Test
 	void grpcServiceConfigurerAutoConfiguredAsExpected() {
 		this.contextRunnerWithLifecyle()
+			.withPropertyValues("spring.grpc.server.port=0")
 			.run((context) -> assertThat(context).getBean(GrpcServiceConfigurer.class)
 				.isInstanceOf(DefaultGrpcServiceConfigurer.class));
 	}
