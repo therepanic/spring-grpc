@@ -22,7 +22,9 @@ import java.util.List;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.log.LogAccessor;
 import org.springframework.grpc.internal.ApplicationContextBeanLookupUtils;
 
 import io.grpc.ClientInterceptor;
@@ -35,6 +37,8 @@ import io.grpc.ManagedChannelBuilder;
  * @author Andrey Litvitski
  */
 public class ClientInterceptorsConfigurer implements InitializingBean {
+
+	private final LogAccessor log = new LogAccessor(getClass());
 
 	private final ApplicationContext applicationContext;
 
@@ -87,7 +91,14 @@ public class ClientInterceptorsConfigurer implements InitializingBean {
 		try {
 			return this.applicationContext.getBean(ClientInterceptorFilter.class);
 		}
+		catch (NoUniqueBeanDefinitionException noUniqueBeanEx) {
+			this.log.warn(noUniqueBeanEx,
+					() -> "No unique ClientInterceptorFilter bean found. Consider defining a single bean or marking one as @Primary");
+			return null;
+		}
 		catch (NoSuchBeanDefinitionException ignored) {
+			this.log.debug(
+					() -> "No ClientInterceptorFilter bean found - filtering will not be applied to client interceptors.");
 			return null;
 		}
 	}

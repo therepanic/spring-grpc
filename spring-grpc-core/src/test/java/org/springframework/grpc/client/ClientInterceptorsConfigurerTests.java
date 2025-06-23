@@ -173,7 +173,7 @@ class ClientInterceptorsConfigurerTests {
 	}
 
 	@Nested
-	class WithInterceptorFilters {
+	class WithInterceptorFilter {
 
 		@Test
 		void whenFilterExcludesOneGlobalInterceptor_thenBuilderGetsOnlyAllowedOnes() {
@@ -196,7 +196,7 @@ class ClientInterceptorsConfigurerTests {
 			ManagedChannelBuilder<?> builder = Mockito.mock();
 			ClientInterceptorsConfigurerTests.this.contextRunner()
 				.withUserConfiguration(GlobalClientInterceptorsConfig.class)
-				.withBean(ClientInterceptorFilter.class, () -> (interceptor, __) -> true)
+				.withBean(ClientInterceptorFilter.class, () -> (__, ___) -> true)
 				.run(context -> {
 					var factory = Mockito.mock(GrpcChannelFactory.class);
 					var configurer = context.getBean(ClientInterceptorsConfigurer.class);
