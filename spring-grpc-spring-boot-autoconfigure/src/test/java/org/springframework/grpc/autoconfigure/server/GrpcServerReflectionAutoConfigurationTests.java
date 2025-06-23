@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Chris Bono
  * @author Andrey Litvitski
  */
-public class GrpcServerReflectionAutoConfigurationTests {
+class GrpcServerReflectionAutoConfigurationTests {
 
 	private ApplicationContextRunner contextRunner() {
 		return new ApplicationContextRunner()
@@ -41,35 +41,34 @@ public class GrpcServerReflectionAutoConfigurationTests {
 	}
 
 	@Test
-	void whenNoBindableServiceDefinedDoesNotAutoConfigureBean() {
+	void whenAutoConfigurationIsNotSkippedThenCreatesReflectionServiceBean() {
+		this.contextRunner().run((context -> assertThat(context).hasBean("serverReflection")));
+	}
+
+	@Test
+	void whenNoBindableServiceDefinedThenAutoConfigurationIsSkipped() {
 		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(GrpcServerReflectionAutoConfiguration.class))
 			.run((context) -> assertThat(context).doesNotHaveBean(GrpcServerReflectionAutoConfiguration.class));
 	}
 
 	@Test
-	void whenReflectionEnabledFlagNotPresentThenCreateDefaultBean() {
-		this.contextRunner().run((context -> assertThat(context).hasBean("serverReflection")));
+	void whenReflectionEnabledPropertyNotSetThenAutoConfigurationIsNotSkipped() {
+		this.contextRunner()
+			.run((context) -> assertThat(context).hasSingleBean(GrpcServerReflectionAutoConfiguration.class));
 	}
 
 	@Test
-	void whenReflectionEnabledThenCreateBean() {
+	void whenReflectionEnabledPropertySetTrueThenAutoConfigurationIsNotSkipped() {
 		this.contextRunner()
 			.withPropertyValues("spring.grpc.server.reflection.enabled=true")
 			.run((context) -> assertThat(context).hasSingleBean(GrpcServerReflectionAutoConfiguration.class));
 	}
 
 	@Test
-	void whenReflectionDisabledThenSkipBeanCreation() {
+	void whenReflectionEnabledPropertySetFalseThenAutoConfigurationIsSkipped() {
 		this.contextRunner()
 			.withPropertyValues("spring.grpc.server.reflection.enabled=false")
-			.run((context) -> assertThat(context).doesNotHaveBean(GrpcServerReflectionAutoConfiguration.class));
-	}
-
-	@Test
-	void whenServerEnabledPropertySetFalseThenAutoConfigurationIsSkipped() {
-		this.contextRunner()
-			.withPropertyValues("spring.grpc.server.enabled=false")
 			.run((context) -> assertThat(context).doesNotHaveBean(GrpcServerReflectionAutoConfiguration.class));
 	}
 
@@ -84,6 +83,13 @@ public class GrpcServerReflectionAutoConfigurationTests {
 		this.contextRunner()
 			.withPropertyValues("spring.grpc.server.enabled=true")
 			.run((context) -> assertThat(context).hasSingleBean(GrpcServerReflectionAutoConfiguration.class));
+	}
+
+	@Test
+	void whenServerEnabledPropertySetFalseThenAutoConfigurationIsSkipped() {
+		this.contextRunner()
+			.withPropertyValues("spring.grpc.server.enabled=false")
+			.run((context) -> assertThat(context).doesNotHaveBean(GrpcServerReflectionAutoConfiguration.class));
 	}
 
 }

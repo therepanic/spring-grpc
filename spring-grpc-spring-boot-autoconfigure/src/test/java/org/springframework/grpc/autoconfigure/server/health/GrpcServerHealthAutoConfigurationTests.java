@@ -61,6 +61,13 @@ class GrpcServerHealthAutoConfigurationTests {
 	}
 
 	@Test
+	void whenAutoConfigurationIsNotSkippedThenCreatesDefaultBeans() {
+		this.contextRunner()
+			.run((context -> assertThat(context).hasSingleBean(HealthStatusManager.class)
+				.hasBean("grpcHealthService")));
+	}
+
+	@Test
 	void whenNoBindableServiceDefinedDoesNotAutoConfigureBean() {
 		new ApplicationContextRunner().withConfiguration(AutoConfigurations.of(GrpcServerHealthAutoConfiguration.class))
 			.run((context) -> assertThat(context).doesNotHaveBean(GrpcServerHealthAutoConfiguration.class));
