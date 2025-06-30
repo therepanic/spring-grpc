@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 
 import org.springframework.boot.security.servlet.ApplicationContextRequestMatcher;
 import org.springframework.grpc.server.service.GrpcServiceDiscoverer;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -109,7 +109,10 @@ public class GrpcServletRequest {
 		}
 
 		private Stream<RequestMatcher> getDelegateMatchers(GrpcServiceDiscoverer context) {
-			return getPatterns(context).map(AntPathRequestMatcher::new);
+			return getPatterns(context).map(path -> {
+				Assert.hasText(path, "Path must not be empty");
+				return PathPatternRequestMatcher.withDefaults().matcher(path);
+			});
 		}
 
 		private Stream<String> getPatterns(GrpcServiceDiscoverer context) {
