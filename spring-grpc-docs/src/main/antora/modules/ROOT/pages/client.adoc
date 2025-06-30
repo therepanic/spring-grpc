@@ -139,7 +139,7 @@ In this mode, the in-process channel factory is auto-configured in *addition* to
 However, to prevent users from having to deal with multiple channel factories, a composite channel factory is configured as the primary channel factory bean.
 The composite consults its composed factories to find the first one that supports the channel target.
 
-NOTE: To use the inprocess server the channel target must be set to `in-process://<in-process-name>`
+NOTE: To use the inprocess server the channel target must be set to `in-process:<in-process-name>`
 
 To disable the inprocess channel factory, you can set the `spring.grpc.client.inprocess.enabled` property to false.
 
