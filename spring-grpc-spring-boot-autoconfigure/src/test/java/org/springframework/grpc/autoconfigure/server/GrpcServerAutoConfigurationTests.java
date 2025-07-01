@@ -419,7 +419,7 @@ class GrpcServerAutoConfigurationTests {
 			ServerServiceDefinition serviceDefinitionA = mock();
 			GrpcServerAutoConfigurationTests.this.contextRunner()
 				.withBean(ServerServiceDefinitionFilter.class,
-						() -> (serviceDefinition, ___) -> serviceDefinition.equals(serviceDefinitionA))
+						() -> (serviceDefinition) -> serviceDefinition.equals(serviceDefinitionA))
 				.run((context) -> {
 					DefaultGrpcServerFactory<?> defaultGrpcServerFactory = (DefaultGrpcServerFactory<?>) context
 						.getBean(GrpcServerFactory.class);
@@ -436,7 +436,7 @@ class GrpcServerAutoConfigurationTests {
 		@Test
 		void whenFilterIncludesAllServicesThenServerListGetAllowedOnes() {
 			GrpcServerAutoConfigurationTests.this.contextRunner()
-				.withBean(ServerServiceDefinitionFilter.class, () -> (__, ___) -> true)
+				.withBean(ServerServiceDefinitionFilter.class, () -> (__) -> true)
 				.run((context) -> {
 					DefaultGrpcServerFactory<?> defaultGrpcServerFactory = (DefaultGrpcServerFactory<?>) context
 						.getBean(GrpcServerFactory.class);

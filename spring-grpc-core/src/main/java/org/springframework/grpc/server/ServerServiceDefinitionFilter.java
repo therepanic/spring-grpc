@@ -19,7 +19,7 @@ import io.grpc.ServerServiceDefinition;
 
 /**
  * Strategy to determine whether a {@link ServerServiceDefinition} should be included for
- * a given {@link GrpcServerFactory server factory}.
+ * the {@link GrpcServerFactory server factory}.
  *
  * @author Andrey Litvitski
  */
@@ -28,11 +28,10 @@ public interface ServerServiceDefinitionFilter {
 
 	/**
 	 * Determine whether the given {@link ServerServiceDefinition} should be included for
-	 * the provided {@link GrpcServerFactory server factory}.
+	 * the {@link GrpcServerFactory server factory}.
 	 * @param serviceDefinition the gRPC service definition under consideration.
-	 * @param serverFactory the server factory in use.
 	 * @return {@code true} if the service should be included; {@code false} otherwise.
 	 */
-	boolean filter(ServerServiceDefinition serviceDefinition, GrpcServerFactory serverFactory);
+	boolean filter(ServerServiceDefinition serviceDefinition);
 
 }

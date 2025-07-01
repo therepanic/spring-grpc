@@ -17,7 +17,6 @@
 package org.springframework.grpc.autoconfigure.server;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
@@ -31,6 +30,7 @@ import org.springframework.boot.ssl.SslBundle;
 import org.springframework.boot.ssl.SslBundles;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
+import org.springframework.lang.Nullable;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.grpc.server.GrpcServerFactory;
 import org.springframework.grpc.server.InProcessGrpcServerFactory;
@@ -65,7 +65,7 @@ class GrpcServerFactoryConfigurations {
 		ShadedNettyGrpcServerFactory shadedNettyGrpcServerFactory(GrpcServerProperties properties,
 				GrpcServiceDiscoverer serviceDiscoverer, GrpcServiceConfigurer serviceConfigurer,
 				ServerBuilderCustomizers serverBuilderCustomizers, SslBundles bundles,
-				Optional<ServerServiceDefinitionFilter> serviceFilter) {
+				@Nullable ServerServiceDefinitionFilter serviceFilter) {
 			ShadedNettyServerFactoryPropertyMapper mapper = new ShadedNettyServerFactoryPropertyMapper(properties);
 			List<ServerBuilderCustomizer<io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder>> builderCustomizers = List
 				.of(mapper::customizeServerBuilder, serverBuilderCustomizers::customize);
@@ -78,8 +78,7 @@ class GrpcServerFactoryConfigurations {
 						: io.grpc.netty.shaded.io.netty.handler.ssl.util.InsecureTrustManagerFactory.INSTANCE;
 			}
 			ShadedNettyGrpcServerFactory factory = new ShadedNettyGrpcServerFactory(properties.getAddress(),
-					builderCustomizers, keyManager, trustManager, properties.getSsl().getClientAuth(),
-					serviceFilter.orElse(null));
+					builderCustomizers, keyManager, trustManager, properties.getSsl().getClientAuth(), serviceFilter);
 			serviceDiscoverer.findServices().stream().map(serviceConfigurer::configure).forEach(factory::addService);
 			return factory;
 		}
@@ -106,7 +105,7 @@ class GrpcServerFactoryConfigurations {
 		NettyGrpcServerFactory nettyGrpcServerFactory(GrpcServerProperties properties,
 				GrpcServiceDiscoverer serviceDiscoverer, GrpcServiceConfigurer serviceConfigurer,
 				ServerBuilderCustomizers serverBuilderCustomizers, SslBundles bundles,
-				Optional<ServerServiceDefinitionFilter> serviceFilter) {
+				@Nullable ServerServiceDefinitionFilter serviceFilter) {
 			NettyServerFactoryPropertyMapper mapper = new NettyServerFactoryPropertyMapper(properties);
 			List<ServerBuilderCustomizer<NettyServerBuilder>> builderCustomizers = List
 				.of(mapper::customizeServerBuilder, serverBuilderCustomizers::customize);
@@ -119,7 +118,7 @@ class GrpcServerFactoryConfigurations {
 						: InsecureTrustManagerFactory.INSTANCE;
 			}
 			NettyGrpcServerFactory factory = new NettyGrpcServerFactory(properties.getAddress(), builderCustomizers,
-					keyManager, trustManager, properties.getSsl().getClientAuth(), serviceFilter.orElse(null));
+					keyManager, trustManager, properties.getSsl().getClientAuth(), serviceFilter);
 			serviceDiscoverer.findServices().stream().map(serviceConfigurer::configure).forEach(factory::addService);
 			return factory;
 		}

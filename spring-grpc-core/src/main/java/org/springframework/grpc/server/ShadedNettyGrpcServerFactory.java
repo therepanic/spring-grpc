@@ -21,6 +21,8 @@ import java.util.List;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.springframework.lang.Nullable;
+
 import io.grpc.TlsServerCredentials.ClientAuth;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.netty.shaded.io.netty.channel.epoll.EpollEventLoopGroup;
@@ -37,7 +39,8 @@ public class ShadedNettyGrpcServerFactory extends DefaultGrpcServerFactory<Netty
 
 	public ShadedNettyGrpcServerFactory(String address,
 			List<ServerBuilderCustomizer<NettyServerBuilder>> serverBuilderCustomizers, KeyManagerFactory keyManager,
-			TrustManagerFactory trustManager, ClientAuth clientAuth, ServerServiceDefinitionFilter serviceFilter) {
+			TrustManagerFactory trustManager, ClientAuth clientAuth,
+			@Nullable ServerServiceDefinitionFilter serviceFilter) {
 		super(address, serverBuilderCustomizers, keyManager, trustManager, clientAuth, serviceFilter);
 	}
 

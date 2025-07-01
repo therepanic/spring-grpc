@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.grpc.internal.GrpcUtils;
+import org.springframework.lang.Nullable;
 
 import com.google.common.collect.Lists;
 import io.grpc.Grpc;
@@ -77,7 +78,7 @@ public class DefaultGrpcServerFactory<T extends ServerBuilder<T>> implements Grp
 
 	public DefaultGrpcServerFactory(String address, List<ServerBuilderCustomizer<T>> serverBuilderCustomizers,
 			KeyManagerFactory keyManager, TrustManagerFactory trustManager, ClientAuth clientAuth,
-			ServerServiceDefinitionFilter serviceFilter) {
+			@Nullable ServerServiceDefinitionFilter serviceFilter) {
 		this(address, serverBuilderCustomizers);
 		this.keyManager = keyManager;
 		this.trustManager = trustManager;
@@ -98,7 +99,7 @@ public class DefaultGrpcServerFactory<T extends ServerBuilder<T>> implements Grp
 
 	@Override
 	public void addService(ServerServiceDefinition service) {
-		if (this.serviceFilter == null || this.serviceFilter.filter(service, this)) {
+		if (this.serviceFilter == null || this.serviceFilter.filter(service)) {
 			this.serviceList.add(service);
 		}
 	}
