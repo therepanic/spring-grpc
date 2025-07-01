@@ -37,8 +37,8 @@ public class ShadedNettyGrpcServerFactory extends DefaultGrpcServerFactory<Netty
 
 	public ShadedNettyGrpcServerFactory(String address,
 			List<ServerBuilderCustomizer<NettyServerBuilder>> serverBuilderCustomizers, KeyManagerFactory keyManager,
-			TrustManagerFactory trustManager, ClientAuth clientAuth) {
-		super(address, serverBuilderCustomizers, keyManager, trustManager, clientAuth);
+			TrustManagerFactory trustManager, ClientAuth clientAuth, ServerServiceDefinitionFilter serviceFilter) {
+		super(address, serverBuilderCustomizers, keyManager, trustManager, clientAuth, serviceFilter);
 	}
 
 	@Override

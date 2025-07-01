@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.MockedStatic;
@@ -44,10 +45,12 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.grpc.server.DefaultGrpcServerFactory;
 import org.springframework.grpc.server.GrpcServerFactory;
 import org.springframework.grpc.server.InProcessGrpcServerFactory;
 import org.springframework.grpc.server.NettyGrpcServerFactory;
 import org.springframework.grpc.server.ServerBuilderCustomizer;
+import org.springframework.grpc.server.ServerServiceDefinitionFilter;
 import org.springframework.grpc.server.ShadedNettyGrpcServerFactory;
 import org.springframework.grpc.server.lifecycle.GrpcServerLifecycle;
 import org.springframework.grpc.server.service.DefaultGrpcServiceConfigurer;
@@ -66,6 +69,7 @@ import io.grpc.netty.NettyServerBuilder;
  * Tests for {@link GrpcServerAutoConfiguration}.
  *
  * @author Chris Bono
+ * @author Andrey Litvitski
  */
 class GrpcServerAutoConfigurationTests {
 
@@ -405,6 +409,47 @@ class GrpcServerAutoConfigurationTests {
 					.withClassLoader(
 							new FilteredClassLoader(io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder.class)),
 				NettyGrpcServerFactory.class, "myhost:6160", "nettyGrpcServerLifecycle");
+	}
+
+	@Nested
+	class WithFilter {
+
+		@Test
+		void whenFilterExcludesOneServiceThenServerListGetAllowedOnes() {
+			ServerServiceDefinition serviceDefinitionA = mock();
+			GrpcServerAutoConfigurationTests.this.contextRunner()
+				.withBean(ServerServiceDefinitionFilter.class,
+						() -> (serviceDefinition, ___) -> serviceDefinition.equals(serviceDefinitionA))
+				.run((context) -> {
+					DefaultGrpcServerFactory<?> defaultGrpcServerFactory = (DefaultGrpcServerFactory<?>) context
+						.getBean(GrpcServerFactory.class);
+					ServerServiceDefinition serviceDefinitionB = mock();
+					defaultGrpcServerFactory.addService(serviceDefinitionA);
+					defaultGrpcServerFactory.addService(serviceDefinitionB);
+					assertThat(context).getBean(GrpcServerFactory.class)
+						.extracting("serviceList", InstanceOfAssertFactories.list(ServerServiceDefinition.class))
+						.contains(serviceDefinitionA)
+						.doesNotContain(serviceDefinitionB);
+				});
+		}
+
+		@Test
+		void whenFilterIncludesAllServicesThenServerListGetAllowedOnes() {
+			GrpcServerAutoConfigurationTests.this.contextRunner()
+				.withBean(ServerServiceDefinitionFilter.class, () -> (__, ___) -> true)
+				.run((context) -> {
+					DefaultGrpcServerFactory<?> defaultGrpcServerFactory = (DefaultGrpcServerFactory<?>) context
+						.getBean(GrpcServerFactory.class);
+					ServerServiceDefinition serviceDefinitionA = mock();
+					ServerServiceDefinition serviceDefinitionB = mock();
+					defaultGrpcServerFactory.addService(serviceDefinitionA);
+					defaultGrpcServerFactory.addService(serviceDefinitionB);
+					assertThat(context).getBean(GrpcServerFactory.class)
+						.extracting("serviceList", InstanceOfAssertFactories.list(ServerServiceDefinition.class))
+						.contains(serviceDefinitionA, serviceDefinitionB);
+				});
+		}
+
 	}
 
 	@Configuration(proxyBeanMethods = false)

@@ -68,17 +68,21 @@ public class DefaultGrpcServerFactory<T extends ServerBuilder<T>> implements Grp
 
 	private ClientAuth clientAuth;
 
+	private ServerServiceDefinitionFilter serviceFilter;
+
 	public DefaultGrpcServerFactory(String address, List<ServerBuilderCustomizer<T>> serverBuilderCustomizers) {
 		this.address = address;
 		this.serverBuilderCustomizers = Objects.requireNonNull(serverBuilderCustomizers, "serverBuilderCustomizers");
 	}
 
 	public DefaultGrpcServerFactory(String address, List<ServerBuilderCustomizer<T>> serverBuilderCustomizers,
-			KeyManagerFactory keyManager, TrustManagerFactory trustManager, ClientAuth clientAuth) {
+			KeyManagerFactory keyManager, TrustManagerFactory trustManager, ClientAuth clientAuth,
+			ServerServiceDefinitionFilter serviceFilter) {
 		this(address, serverBuilderCustomizers);
 		this.keyManager = keyManager;
 		this.trustManager = trustManager;
 		this.clientAuth = clientAuth;
+		this.serviceFilter = serviceFilter;
 	}
 
 	protected String address() {
@@ -94,7 +98,9 @@ public class DefaultGrpcServerFactory<T extends ServerBuilder<T>> implements Grp
 
 	@Override
 	public void addService(ServerServiceDefinition service) {
-		this.serviceList.add(service);
+		if (this.serviceFilter == null || this.serviceFilter.filter(service, this)) {
+			this.serviceList.add(service);
+		}
 	}
 
 	/**
