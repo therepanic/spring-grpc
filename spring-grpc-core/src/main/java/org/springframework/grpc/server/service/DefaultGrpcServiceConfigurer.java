@@ -23,7 +23,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.grpc.internal.ApplicationContextBeanLookupUtils;
 import org.springframework.grpc.server.GlobalServerInterceptor;
+import org.springframework.grpc.server.GrpcServerFactory;
 import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
@@ -42,8 +44,12 @@ public class DefaultGrpcServiceConfigurer implements GrpcServiceConfigurer, Init
 
 	private List<ServerInterceptor> globalInterceptors;
 
-	public DefaultGrpcServiceConfigurer(ApplicationContext applicationContext) {
+	private ServerInterceptorFilter interceptorFilter;
+
+	public DefaultGrpcServiceConfigurer(ApplicationContext applicationContext,
+			@Nullable ServerInterceptorFilter interceptorFilter) {
 		this.applicationContext = applicationContext;
+		this.interceptorFilter = interceptorFilter;
 	}
 
 	@Override
@@ -52,8 +58,10 @@ public class DefaultGrpcServiceConfigurer implements GrpcServiceConfigurer, Init
 	}
 
 	@Override
-	public ServerServiceDefinition configure(ServerServiceDefinitionSpec serviceDefinitionSpec) {
-		return bindInterceptors(serviceDefinitionSpec.service(), serviceDefinitionSpec.serviceInfo());
+	public ServerServiceDefinition configure(ServerServiceDefinitionSpec serviceSpec, GrpcServerFactory serverFactory) {
+		Assert.notNull(serviceSpec, () -> "serviceSpec must not be null");
+		Assert.notNull(serverFactory, () -> "serverFactory must not be null");
+		return bindInterceptors(serviceSpec.service(), serviceSpec.serviceInfo(), serverFactory);
 	}
 
 	private List<ServerInterceptor> findGlobalInterceptors() {
@@ -62,13 +70,18 @@ public class DefaultGrpcServiceConfigurer implements GrpcServiceConfigurer, Init
 	}
 
 	private ServerServiceDefinition bindInterceptors(BindableService bindableService,
-			@Nullable GrpcServiceInfo serviceInfo) {
+			@Nullable GrpcServiceInfo serviceInfo, GrpcServerFactory serverFactory) {
 		var serviceDef = bindableService.bindService();
-		if (serviceInfo == null) {
-			return ServerInterceptors.interceptForward(serviceDef, this.globalInterceptors);
-		}
-		// Add global interceptors first
+
+		// Add and filter global interceptors first
 		List<ServerInterceptor> allInterceptors = new ArrayList<>(this.globalInterceptors);
+		if (this.interceptorFilter != null) {
+			allInterceptors
+				.removeIf(interceptor -> !this.interceptorFilter.filter(interceptor, serviceDef, serverFactory));
+		}
+		if (serviceInfo == null) {
+			return ServerInterceptors.interceptForward(serviceDef, allInterceptors);
+		}
 		// Add interceptors by type
 		Arrays.stream(serviceInfo.interceptors())
 			.forEachOrdered(

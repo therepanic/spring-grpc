@@ -13,32 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.grpc.server.service;
 
 import org.springframework.grpc.server.GrpcServerFactory;
 
+import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 
 /**
- * Configures and binds a {@link ServerServiceDefinitionSpec service spec} into a
- * {@link ServerServiceDefinition service definition} that can then be added to a gRPC
- * server.
+ * Strategy to determine whether a global {@link ServerInterceptor server interceptor}
+ * should be applied to {@link ServerServiceDefinition gRPC service}.
  *
  * @author Chris Bono
  */
 @FunctionalInterface
-public interface GrpcServiceConfigurer {
+public interface ServerInterceptorFilter {
 
 	/**
-	 * Configure and bind a gRPC server spec resulting in a service definition that can
-	 * then be added to a gRPC server.
-	 * @param serviceSpec the spec containing the info about the service
-	 * @param serverFactory the factory that provides the server that the service will be
-	 * added to
-	 * @return bound and configured service definition that is ready to be added to a
-	 * server
+	 * Determine whether an interceptor should be applied to a service when the service is
+	 * running on a server provided by the given server factory.
+	 * @param interceptor the server interceptor under consideration.
+	 * @param service the service being added.
+	 * @param serverFactory the server factory in use.
+	 * @return {@code true} if the interceptor should be included; {@code false}
+	 * otherwise.
 	 */
-	ServerServiceDefinition configure(ServerServiceDefinitionSpec serviceSpec, GrpcServerFactory serverFactory);
+	boolean filter(ServerInterceptor interceptor, ServerServiceDefinition service, GrpcServerFactory serverFactory);
 
 }

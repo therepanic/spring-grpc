@@ -76,7 +76,10 @@ class GrpcServerFactoryConfigurations {
 			}
 			ShadedNettyGrpcServerFactory factory = new ShadedNettyGrpcServerFactory(properties.getAddress(),
 					builderCustomizers, keyManager, trustManager, properties.getSsl().getClientAuth());
-			serviceDiscoverer.findServices().stream().map(serviceConfigurer::configure).forEach(factory::addService);
+			serviceDiscoverer.findServices()
+				.stream()
+				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
+				.forEach(factory::addService);
 			return factory;
 		}
 
@@ -115,7 +118,10 @@ class GrpcServerFactoryConfigurations {
 			}
 			NettyGrpcServerFactory factory = new NettyGrpcServerFactory(properties.getAddress(), builderCustomizers,
 					keyManager, trustManager, properties.getSsl().getClientAuth());
-			serviceDiscoverer.findServices().stream().map(serviceConfigurer::configure).forEach(factory::addService);
+			serviceDiscoverer.findServices()
+				.stream()
+				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
+				.forEach(factory::addService);
 			return factory;
 		}
 
@@ -145,7 +151,10 @@ class GrpcServerFactoryConfigurations {
 				.of(mapper::customizeServerBuilder, serverBuilderCustomizers::customize);
 			InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory(properties.getInprocess().getName(),
 					builderCustomizers);
-			serviceDiscoverer.findServices().stream().map(serviceConfigurer::configure).forEach(factory::addService);
+			serviceDiscoverer.findServices()
+				.stream()
+				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
+				.forEach(factory::addService);
 			return factory;
 		}
 

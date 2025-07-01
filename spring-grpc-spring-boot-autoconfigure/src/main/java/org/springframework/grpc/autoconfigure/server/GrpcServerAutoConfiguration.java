@@ -33,6 +33,8 @@ import org.springframework.grpc.server.service.DefaultGrpcServiceConfigurer;
 import org.springframework.grpc.server.service.DefaultGrpcServiceDiscoverer;
 import org.springframework.grpc.server.service.GrpcServiceConfigurer;
 import org.springframework.grpc.server.service.GrpcServiceDiscoverer;
+import org.springframework.grpc.server.service.ServerInterceptorFilter;
+import org.springframework.lang.Nullable;
 
 import io.grpc.BindableService;
 import io.grpc.CompressorRegistry;
@@ -69,8 +71,9 @@ public class GrpcServerAutoConfiguration {
 
 	@ConditionalOnMissingBean(GrpcServiceConfigurer.class)
 	@Bean
-	DefaultGrpcServiceConfigurer grpcServiceConfigurer(ApplicationContext applicationContext) {
-		return new DefaultGrpcServiceConfigurer(applicationContext);
+	DefaultGrpcServiceConfigurer grpcServiceConfigurer(ApplicationContext applicationContext,
+			@Nullable ServerInterceptorFilter interceptorFilter) {
+		return new DefaultGrpcServiceConfigurer(applicationContext, interceptorFilter);
 	}
 
 	@ConditionalOnMissingBean(GrpcServiceDiscoverer.class)

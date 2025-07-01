@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.MockedStatic;
@@ -54,6 +55,7 @@ import org.springframework.grpc.server.service.DefaultGrpcServiceConfigurer;
 import org.springframework.grpc.server.service.DefaultGrpcServiceDiscoverer;
 import org.springframework.grpc.server.service.GrpcServiceConfigurer;
 import org.springframework.grpc.server.service.GrpcServiceDiscoverer;
+import org.springframework.grpc.server.service.ServerInterceptorFilter;
 
 import io.grpc.BindableService;
 import io.grpc.Grpc;
@@ -150,23 +152,6 @@ class GrpcServerAutoConfigurationTests {
 			.withPropertyValues("spring.grpc.server.port=0")
 			.run((context) -> assertThat(context).getBean(GrpcServiceDiscoverer.class)
 				.isInstanceOf(DefaultGrpcServiceDiscoverer.class));
-	}
-
-	@Test
-	void whenHasUserDefinedGrpcServiceConfigurerDoesNotAutoConfigureBean() {
-		GrpcServiceConfigurer customGrpcServiceConfigurer = mock(GrpcServiceConfigurer.class);
-		this.contextRunner()
-			.withBean("customGrpcServiceConfigurer", GrpcServiceConfigurer.class, () -> customGrpcServiceConfigurer)
-			.run((context) -> assertThat(context).getBean(GrpcServiceConfigurer.class)
-				.isSameAs(customGrpcServiceConfigurer));
-	}
-
-	@Test
-	void grpcServiceConfigurerAutoConfiguredAsExpected() {
-		this.contextRunnerWithLifecyle()
-			.withPropertyValues("spring.grpc.server.port=0")
-			.run((context) -> assertThat(context).getBean(GrpcServiceConfigurer.class)
-				.isInstanceOf(DefaultGrpcServiceConfigurer.class));
 	}
 
 	@Test
@@ -405,6 +390,59 @@ class GrpcServerAutoConfigurationTests {
 					.withClassLoader(
 							new FilteredClassLoader(io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder.class)),
 				NettyGrpcServerFactory.class, "myhost:6160", "nettyGrpcServerLifecycle");
+	}
+
+	@Nested
+	class WithGrpcServiceConfigurerAutoConfig {
+
+		@Test
+		void whenHasUserDefinedBeanDoesNotAutoConfigureBean() {
+			GrpcServiceConfigurer customGrpcServiceConfigurer = mock(GrpcServiceConfigurer.class);
+			GrpcServerAutoConfigurationTests.this.contextRunner()
+				.withBean("customGrpcServiceConfigurer", GrpcServiceConfigurer.class, () -> customGrpcServiceConfigurer)
+				.run((context) -> assertThat(context).getBean(GrpcServiceConfigurer.class)
+					.isSameAs(customGrpcServiceConfigurer));
+		}
+
+		@Test
+		void configurerAutoConfiguredAsExpected() {
+			GrpcServerAutoConfigurationTests.this.contextRunnerWithLifecyle()
+				.withPropertyValues("spring.grpc.server.port=0")
+				.run((context) -> assertThat(context).getBean(GrpcServiceConfigurer.class)
+					.isInstanceOf(DefaultGrpcServiceConfigurer.class));
+		}
+
+		@Test
+		void whenNoServerInterceptorFilterThenConfigurerUsesNoFilter() {
+			GrpcServerAutoConfigurationTests.this.contextRunnerWithLifecyle()
+				.withPropertyValues("spring.grpc.server.port=0")
+				.run((context) -> assertThat(context).getBean(GrpcServiceConfigurer.class)
+					.extracting("interceptorFilter")
+					.isNull());
+		}
+
+		@Test
+		void whenUniqueServerInterceptorFilterThenConfigurerUsesFilter() {
+			ServerInterceptorFilter interceptorFilter = mock();
+			GrpcServerAutoConfigurationTests.this.contextRunnerWithLifecyle()
+				.withPropertyValues("spring.grpc.server.port=0")
+				.withBean(ServerInterceptorFilter.class, () -> interceptorFilter)
+				.run((context) -> assertThat(context).getBean(GrpcServiceConfigurer.class)
+					.extracting("interceptorFilter")
+					.isSameAs(interceptorFilter));
+		}
+
+		@Test
+		void whenMultipleServerInterceptorFiltersThenThrowsException() {
+			GrpcServerAutoConfigurationTests.this.contextRunnerWithLifecyle()
+				.withPropertyValues("spring.grpc.server.port=0")
+				.withBean("filter1", ServerInterceptorFilter.class, Mockito::mock)
+				.withBean("filter2", ServerInterceptorFilter.class, Mockito::mock)
+				.run((context) -> assertThat(context).hasFailed()
+					.getFailure()
+					.hasMessageContaining("expected single matching bean but found 2: filter1,filter2"));
+		}
+
 	}
 
 	@Configuration(proxyBeanMethods = false)
