@@ -143,12 +143,13 @@ class GrpcServerFactoryConfigurations {
 		@Bean
 		InProcessGrpcServerFactory inProcessGrpcServerFactory(GrpcServerProperties properties,
 				GrpcServiceDiscoverer serviceDiscoverer, GrpcServiceConfigurer serviceConfigurer,
-				ServerBuilderCustomizers serverBuilderCustomizers) {
+				ServerBuilderCustomizers serverBuilderCustomizers,
+				@Nullable ServerServiceDefinitionFilter serviceFilter) {
 			var mapper = new InProcessServerFactoryPropertyMapper(properties);
 			List<ServerBuilderCustomizer<InProcessServerBuilder>> builderCustomizers = List
 				.of(mapper::customizeServerBuilder, serverBuilderCustomizers::customize);
 			InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory(properties.getInprocess().getName(),
-					builderCustomizers);
+					builderCustomizers, serviceFilter);
 			serviceDiscoverer.findServices().stream().map(serviceConfigurer::configure).forEach(factory::addService);
 			return factory;
 		}

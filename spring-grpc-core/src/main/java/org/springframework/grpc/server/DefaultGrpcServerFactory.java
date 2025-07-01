@@ -1,5 +1,5 @@
 /*
- * Copyright 2024-2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import io.grpc.TlsServerCredentials.ClientAuth;
  * @param <T> the type of server builder
  * @author David Syer
  * @author Chris Bono
+ * @author Andrey Litvitski
  * @see ServerProvider#provider()
  */
 public class DefaultGrpcServerFactory<T extends ServerBuilder<T>> implements GrpcServerFactory {
