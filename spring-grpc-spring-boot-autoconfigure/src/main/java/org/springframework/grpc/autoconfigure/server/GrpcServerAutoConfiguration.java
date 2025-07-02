@@ -57,12 +57,6 @@ import io.grpc.ServerBuilder;
 @Import({ GrpcCodecConfiguration.class })
 public class GrpcServerAutoConfiguration {
 
-	private final GrpcServerProperties properties;
-
-	GrpcServerAutoConfiguration(GrpcServerProperties properties) {
-		this.properties = properties;
-	}
-
 	@ConditionalOnMissingBean
 	@Bean
 	ServerBuilderCustomizers serverBuilderCustomizers(ObjectProvider<ServerBuilderCustomizer<?>> customizers) {
