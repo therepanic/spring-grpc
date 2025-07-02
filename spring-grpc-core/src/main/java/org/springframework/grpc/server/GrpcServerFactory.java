@@ -21,6 +21,7 @@ package org.springframework.grpc.server;
 import org.springframework.grpc.server.lifecycle.GrpcServerLifecycle;
 
 import io.grpc.Server;
+import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 
 /**
@@ -47,5 +48,9 @@ public interface GrpcServerFactory {
 	 * @param service the service definition to add
 	 */
 	void addService(ServerServiceDefinition service);
+
+	default boolean supports(ServerInterceptor interceptor, ServerServiceDefinition service) {
+		return true;
+	}
 
 }

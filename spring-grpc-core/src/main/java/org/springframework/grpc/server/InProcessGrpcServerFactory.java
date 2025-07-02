@@ -17,8 +17,11 @@ package org.springframework.grpc.server;
 
 import java.util.List;
 
+import org.springframework.grpc.server.service.ServerInterceptorFilter;
 import org.springframework.lang.Nullable;
 
+import io.grpc.ServerInterceptor;
+import io.grpc.ServerServiceDefinition;
 import io.grpc.inprocess.InProcessServerBuilder;
 
 /**
@@ -29,10 +32,17 @@ import io.grpc.inprocess.InProcessServerBuilder;
  */
 public class InProcessGrpcServerFactory extends DefaultGrpcServerFactory<InProcessServerBuilder> {
 
+	private ServerServiceDefinitionFilter serviceFilter;
+
+	private ServerInterceptorFilter interceptorFilter;
+
 	public InProcessGrpcServerFactory(String address,
 			List<ServerBuilderCustomizer<InProcessServerBuilder>> serverBuilderCustomizers,
+			@Nullable ServerInterceptorFilter interceptorFilter,
 			@Nullable ServerServiceDefinitionFilter serviceFilter) {
-		super(address, serverBuilderCustomizers, null, null, null, serviceFilter);
+		super(address, serverBuilderCustomizers, null, null, null);
+		this.interceptorFilter = interceptorFilter;
+		this.serviceFilter = serviceFilter;
 	}
 
 	@Override
@@ -40,4 +50,15 @@ public class InProcessGrpcServerFactory extends DefaultGrpcServerFactory<InProce
 		return InProcessServerBuilder.forName(address());
 	}
 
+	@Override
+	public void addService(ServerServiceDefinition service) {
+		if (this.serviceFilter == null || this.serviceFilter.filter(service, this)) {
+			super.addService(service);
+		}
+	}
+
+	@Override
+	public boolean supports(ServerInterceptor interceptor, ServerServiceDefinition service) {
+		return (this.interceptorFilter == null || this.interceptorFilter.filter(interceptor, service));
+	}
 }
