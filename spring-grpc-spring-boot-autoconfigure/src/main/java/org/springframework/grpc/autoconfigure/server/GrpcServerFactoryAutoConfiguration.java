@@ -38,7 +38,6 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
-import org.springframework.grpc.server.ServletGrpcServerFactory;
 import org.springframework.grpc.server.service.GrpcServiceConfigurer;
 import org.springframework.grpc.server.service.GrpcServiceDiscoverer;
 import org.springframework.util.unit.DataSize;
@@ -97,7 +96,7 @@ public class GrpcServerFactoryAutoConfiguration {
 			ServletServerBuilder servletServerBuilder = new ServletServerBuilder();
 			serviceDiscoverer.findServices()
 				.stream()
-				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, ServletGrpcServerFactory.INSTANCE))
+				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec))
 				.forEach(servletServerBuilder::addService);
 			PropertyMapper mapper = PropertyMapper.get().alwaysApplyingWhenNonNull();
 			mapper.from(properties.getMaxInboundMessageSize())

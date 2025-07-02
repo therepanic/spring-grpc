@@ -23,7 +23,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.grpc.internal.ApplicationContextBeanLookupUtils;
 import org.springframework.grpc.server.GlobalServerInterceptor;
-import org.springframework.grpc.server.GrpcServerFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
@@ -58,10 +57,9 @@ public class DefaultGrpcServiceConfigurer implements GrpcServiceConfigurer, Init
 	}
 
 	@Override
-	public ServerServiceDefinition configure(ServerServiceDefinitionSpec serviceSpec, GrpcServerFactory serverFactory) {
+	public ServerServiceDefinition configure(ServerServiceDefinitionSpec serviceSpec) {
 		Assert.notNull(serviceSpec, () -> "serviceSpec must not be null");
-		Assert.notNull(serverFactory, () -> "serverFactory must not be null");
-		return bindInterceptors(serviceSpec.service(), serviceSpec.serviceInfo(), serverFactory);
+		return bindInterceptors(serviceSpec.service(), serviceSpec.serviceInfo());
 	}
 
 	private List<ServerInterceptor> findGlobalInterceptors() {
@@ -70,14 +68,13 @@ public class DefaultGrpcServiceConfigurer implements GrpcServiceConfigurer, Init
 	}
 
 	private ServerServiceDefinition bindInterceptors(BindableService bindableService,
-			@Nullable GrpcServiceInfo serviceInfo, GrpcServerFactory serverFactory) {
+			@Nullable GrpcServiceInfo serviceInfo) {
 		var serviceDef = bindableService.bindService();
 
 		// Add and filter global interceptors first
 		List<ServerInterceptor> allInterceptors = new ArrayList<>(this.globalInterceptors);
 		if (this.interceptorFilter != null) {
-			allInterceptors
-				.removeIf(interceptor -> !this.interceptorFilter.filter(interceptor, serviceDef, serverFactory));
+			allInterceptors.removeIf(interceptor -> !this.interceptorFilter.filter(interceptor, serviceDef));
 		}
 		if (serviceInfo == null) {
 			return ServerInterceptors.interceptForward(serviceDef, allInterceptors);

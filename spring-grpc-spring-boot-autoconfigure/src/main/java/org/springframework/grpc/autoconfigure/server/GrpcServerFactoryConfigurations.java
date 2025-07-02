@@ -78,7 +78,7 @@ class GrpcServerFactoryConfigurations {
 					builderCustomizers, keyManager, trustManager, properties.getSsl().getClientAuth());
 			serviceDiscoverer.findServices()
 				.stream()
-				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
+				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec))
 				.forEach(factory::addService);
 			return factory;
 		}
@@ -120,7 +120,7 @@ class GrpcServerFactoryConfigurations {
 					keyManager, trustManager, properties.getSsl().getClientAuth());
 			serviceDiscoverer.findServices()
 				.stream()
-				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
+				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec))
 				.forEach(factory::addService);
 			return factory;
 		}
@@ -153,7 +153,7 @@ class GrpcServerFactoryConfigurations {
 					builderCustomizers);
 			serviceDiscoverer.findServices()
 				.stream()
-				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
+				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec))
 				.forEach(factory::addService);
 			return factory;
 		}

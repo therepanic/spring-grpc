@@ -60,7 +60,7 @@ public class InProcessTestAutoConfiguration {
 		var factory = new TestInProcessGrpcServerFactory(address, customizers);
 		serviceDiscoverer.findServices()
 			.stream()
-			.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
+			.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec))
 			.forEach(factory::addService);
 		return factory;
 	}

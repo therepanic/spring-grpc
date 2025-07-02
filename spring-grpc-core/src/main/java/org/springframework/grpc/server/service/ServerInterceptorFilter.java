@@ -15,8 +15,6 @@
  */
 package org.springframework.grpc.server.service;
 
-import org.springframework.grpc.server.GrpcServerFactory;
-
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 
@@ -34,10 +32,9 @@ public interface ServerInterceptorFilter {
 	 * running on a server provided by the given server factory.
 	 * @param interceptor the server interceptor under consideration.
 	 * @param service the service being added.
-	 * @param serverFactory the server factory in use.
 	 * @return {@code true} if the interceptor should be included; {@code false}
 	 * otherwise.
 	 */
-	boolean filter(ServerInterceptor interceptor, ServerServiceDefinition service, GrpcServerFactory serverFactory);
+	boolean filter(ServerInterceptor interceptor, ServerServiceDefinition service);
 
 }
