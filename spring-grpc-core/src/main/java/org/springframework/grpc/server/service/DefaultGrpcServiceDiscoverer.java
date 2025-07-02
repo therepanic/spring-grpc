@@ -41,12 +41,12 @@ public class DefaultGrpcServiceDiscoverer implements GrpcServiceDiscoverer {
 	}
 
 	@Override
-	public List<ServerServiceDefinitionSpec> findServices() {
+	public List<GrpcServiceSpec> findServices() {
 		return ApplicationContextBeanLookupUtils
 			.getOrderedBeansWithAnnotation(this.applicationContext, BindableService.class, GrpcService.class)
 			.entrySet()
 			.stream()
-			.map((e) -> new ServerServiceDefinitionSpec(e.getKey(), this.serviceInfo(e.getValue())))
+			.map((e) -> new GrpcServiceSpec(e.getKey(), this.serviceInfo(e.getValue())))
 			.toList();
 	}
 

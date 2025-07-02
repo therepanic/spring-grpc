@@ -57,7 +57,7 @@ public class DefaultGrpcServiceConfigurer implements GrpcServiceConfigurer, Init
 	}
 
 	@Override
-	public ServerServiceDefinition configure(ServerServiceDefinitionSpec serviceSpec) {
+	public ServerServiceDefinition configure(GrpcServiceSpec serviceSpec) {
 		Assert.notNull(serviceSpec, () -> "serviceSpec must not be null");
 		return bindInterceptors(serviceSpec.service(), serviceSpec.serviceInfo());
 	}

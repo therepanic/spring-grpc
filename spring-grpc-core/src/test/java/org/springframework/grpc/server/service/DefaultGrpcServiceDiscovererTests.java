@@ -69,10 +69,10 @@ class DefaultGrpcServiceDiscovererTests {
 					DefaultGrpcServiceDiscovererTestsServiceConfig.class)
 			.run((context) -> assertThat(context).getBean(DefaultGrpcServiceDiscoverer.class)
 				.extracting(DefaultGrpcServiceDiscoverer::findServices,
-						InstanceOfAssertFactories.list(ServerServiceDefinitionSpec.class))
+						InstanceOfAssertFactories.list(GrpcServiceSpec.class))
 				.satisfies((serviceSpecs) -> {
 					assertThat(serviceSpecs).hasSize(2);
-					assertThat(serviceSpecs).element(0).isEqualTo(new ServerServiceDefinitionSpec(SERVICE_B, null));
+					assertThat(serviceSpecs).element(0).isEqualTo(new GrpcServiceSpec(SERVICE_B, null));
 					assertThat(serviceSpecs).element(1).satisfies((spec) -> {
 						assertThat(spec.service()).isEqualTo(SERVICE_A);
 						assertThat(spec.serviceInfo()).isNotNull();

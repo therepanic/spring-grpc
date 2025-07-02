@@ -32,7 +32,7 @@ public interface GrpcServiceDiscoverer {
 	 * service definition.
 	 * @return list of service specs - empty when no services available
 	 */
-	List<ServerServiceDefinitionSpec> findServices();
+	List<GrpcServiceSpec> findServices();
 
 	/**
 	 * Find the names of the available gRPC services.

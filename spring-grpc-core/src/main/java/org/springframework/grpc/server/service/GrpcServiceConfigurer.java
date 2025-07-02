@@ -19,7 +19,7 @@ package org.springframework.grpc.server.service;
 import io.grpc.ServerServiceDefinition;
 
 /**
- * Configures and binds a {@link ServerServiceDefinitionSpec service spec} into a
+ * Configures and binds a {@link GrpcServiceSpec service spec} into a
  * {@link ServerServiceDefinition service definition} that can then be added to a gRPC
  * server.
  *
@@ -35,6 +35,6 @@ public interface GrpcServiceConfigurer {
 	 * @return bound and configured service definition that is ready to be added to a
 	 * server
 	 */
-	ServerServiceDefinition configure(ServerServiceDefinitionSpec serviceSpec);
+	ServerServiceDefinition configure(GrpcServiceSpec serviceSpec);
 
 }

@@ -29,8 +29,8 @@ import io.grpc.ServerServiceDefinition;
  * interceptors)
  * @author Chris Bono
  */
-public record ServerServiceDefinitionSpec(BindableService service, @Nullable GrpcServiceInfo serviceInfo) {
-	public ServerServiceDefinitionSpec {
+public record GrpcServiceSpec(BindableService service, @Nullable GrpcServiceInfo serviceInfo) {
+	public GrpcServiceSpec {
 		Assert.notNull(service, "service must not be null");
 	}
 
