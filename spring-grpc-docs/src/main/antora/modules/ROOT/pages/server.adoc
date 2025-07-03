@@ -130,8 +130,23 @@ The following example prevents the `ExtraThingsInterceptor` interceptor from bei
 ----
 @Bean
 ServerInterceptorFilter myInterceptorFilter() {
-	return (interceptor, service, serverFactory) ->
-			!(interceptor instanceof ExtraThingsInterceptor && serverFactory instanceof InProcessGrpcServerFactory);
+	return (interceptor, service) ->
+			!(interceptor instanceof ExtraThingsInterceptor);
+}
+----
+
+An `InProcessGrpcServerFactory` picks up the `ServerInterceptorFilter` automatically.
+Any other server factory will require you to provide a `GrpcServerFactoryCustomizer` in which you can modify the factory by adding a filter, as shown in the following example:
+
+[source,java]
+----
+@Bean
+GrpcServerFactoryCustomizer myServerFactoryCustomizer() {
+	return factory -> {
+		if (factory instanceof NettyGrpcServerFactory) {
+			((DefaultGrpcServerFactory)factory).setInterceptorFilter(myInterceptorFilter());
+		}
+	};
 }
 ----
 

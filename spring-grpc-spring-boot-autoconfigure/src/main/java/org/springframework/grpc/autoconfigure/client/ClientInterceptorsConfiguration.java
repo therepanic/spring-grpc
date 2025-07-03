@@ -18,6 +18,7 @@ package org.springframework.grpc.autoconfigure.client;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.grpc.client.ClientInterceptorsConfigurer;
 
 /**
@@ -25,6 +26,7 @@ import org.springframework.grpc.client.ClientInterceptorsConfigurer;
  *
  * @author Chris Bono
  */
+@Configuration(proxyBeanMethods = false)
 public class ClientInterceptorsConfiguration {
 
 	@Bean
