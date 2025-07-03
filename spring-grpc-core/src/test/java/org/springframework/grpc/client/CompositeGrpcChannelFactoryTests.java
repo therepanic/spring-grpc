@@ -30,7 +30,6 @@ import io.grpc.ManagedChannel;
 /**
  * Unit tests for the {@link CompositeGrpcChannelFactory}.
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
 class CompositeGrpcChannelFactoryTests {
 
 	private TestChannelFactory fooChannelFactory;

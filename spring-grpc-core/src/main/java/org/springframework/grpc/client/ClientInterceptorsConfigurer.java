@@ -21,10 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.log.LogAccessor;
 import org.springframework.grpc.internal.ApplicationContextBeanLookupUtils;
 
 import io.grpc.ClientInterceptor;
@@ -38,13 +35,9 @@ import io.grpc.ManagedChannelBuilder;
  */
 public class ClientInterceptorsConfigurer implements InitializingBean {
 
-	private final LogAccessor log = new LogAccessor(getClass());
-
 	private final ApplicationContext applicationContext;
 
 	private List<ClientInterceptor> globalInterceptors;
-
-	private ClientInterceptorFilter interceptorFilter;
 
 	public ClientInterceptorsConfigurer(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
@@ -65,9 +58,7 @@ public class ClientInterceptorsConfigurer implements InitializingBean {
 		// Add specific interceptors
 		allInterceptors.addAll(interceptors);
 		// Filter all interceptors
-		if (this.interceptorFilter != null) {
-			allInterceptors.removeIf(interceptor -> !this.interceptorFilter.filter(interceptor, factory));
-		}
+		allInterceptors.removeIf(interceptor -> !factory.supports(interceptor));
 		if (mergeWithGlobalInterceptors) {
 			ApplicationContextBeanLookupUtils.sortBeansIncludingOrderAnnotation(this.applicationContext,
 					ClientInterceptor.class, allInterceptors);
@@ -79,28 +70,11 @@ public class ClientInterceptorsConfigurer implements InitializingBean {
 	@Override
 	public void afterPropertiesSet() {
 		this.globalInterceptors = findGlobalInterceptors();
-		this.interceptorFilter = findInterceptorFilter();
 	}
 
 	private List<ClientInterceptor> findGlobalInterceptors() {
 		return ApplicationContextBeanLookupUtils.getBeansWithAnnotation(this.applicationContext,
 				ClientInterceptor.class, GlobalClientInterceptor.class);
-	}
-
-	private ClientInterceptorFilter findInterceptorFilter() {
-		try {
-			return this.applicationContext.getBean(ClientInterceptorFilter.class);
-		}
-		catch (NoUniqueBeanDefinitionException noUniqueBeanEx) {
-			this.log.warn(noUniqueBeanEx,
-					() -> "No unique ClientInterceptorFilter bean found. Consider defining a single bean or marking one as @Primary");
-			return null;
-		}
-		catch (NoSuchBeanDefinitionException ignored) {
-			this.log.debug(
-					() -> "No ClientInterceptorFilter bean found - filtering will not be applied to client interceptors.");
-			return null;
-		}
 	}
 
 }

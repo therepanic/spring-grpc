@@ -18,6 +18,7 @@ package org.springframework.grpc.autoconfigure.client;
 
 import java.util.List;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -25,6 +26,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.grpc.client.ChannelCredentialsProvider;
+import org.springframework.grpc.client.ClientInterceptorFilter;
 import org.springframework.grpc.client.ClientInterceptorsConfigurer;
 import org.springframework.grpc.client.GrpcChannelBuilderCustomizer;
 import org.springframework.grpc.client.GrpcChannelFactory;
@@ -55,12 +57,15 @@ class GrpcChannelFactoryConfigurations {
 		@Bean
 		ShadedNettyGrpcChannelFactory shadedNettyGrpcChannelFactory(GrpcClientProperties properties,
 				ChannelBuilderCustomizers channelBuilderCustomizers,
-				ClientInterceptorsConfigurer interceptorsConfigurer, ChannelCredentialsProvider credentials) {
+				ClientInterceptorsConfigurer interceptorsConfigurer,
+				ObjectProvider<GrpcChannelFactoryCustomizer> channelFactoryCustomizers,
+				ChannelCredentialsProvider credentials) {
 			List<GrpcChannelBuilderCustomizer<io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder>> builderCustomizers = List
 				.of(channelBuilderCustomizers::customize);
 			var factory = new ShadedNettyGrpcChannelFactory(builderCustomizers, interceptorsConfigurer);
 			factory.setCredentialsProvider(credentials);
 			factory.setVirtualTargets(properties);
+			channelFactoryCustomizers.orderedStream().forEach(customizer -> customizer.customize(factory));
 			return factory;
 		}
 
@@ -77,12 +82,15 @@ class GrpcChannelFactoryConfigurations {
 		@Bean
 		NettyGrpcChannelFactory nettyGrpcChannelFactory(GrpcClientProperties properties,
 				ChannelBuilderCustomizers channelBuilderCustomizers,
-				ClientInterceptorsConfigurer interceptorsConfigurer, ChannelCredentialsProvider credentials) {
+				ClientInterceptorsConfigurer interceptorsConfigurer,
+				ObjectProvider<GrpcChannelFactoryCustomizer> channelFactoryCustomizers,
+				ChannelCredentialsProvider credentials) {
 			List<GrpcChannelBuilderCustomizer<NettyChannelBuilder>> builderCustomizers = List
 				.of(channelBuilderCustomizers::customize);
 			var factory = new NettyGrpcChannelFactory(builderCustomizers, interceptorsConfigurer);
 			factory.setCredentialsProvider(credentials);
 			factory.setVirtualTargets(properties);
+			channelFactoryCustomizers.orderedStream().forEach(customizer -> customizer.customize(factory));
 			return factory;
 		}
 
@@ -97,10 +105,18 @@ class GrpcChannelFactoryConfigurations {
 
 		@Bean
 		InProcessGrpcChannelFactory inProcessGrpcChannelFactory(ChannelBuilderCustomizers channelBuilderCustomizers,
-				ClientInterceptorsConfigurer interceptorsConfigurer) {
+				ClientInterceptorsConfigurer interceptorsConfigurer,
+				ObjectProvider<ClientInterceptorFilter> interceptorFilter,
+				ObjectProvider<GrpcChannelFactoryCustomizer> channelFactoryCustomizers) {
 			List<GrpcChannelBuilderCustomizer<InProcessChannelBuilder>> inProcessBuilderCustomizers = List
 				.of(channelBuilderCustomizers::customize);
-			return new InProcessGrpcChannelFactory(inProcessBuilderCustomizers, interceptorsConfigurer);
+			InProcessGrpcChannelFactory factory = new InProcessGrpcChannelFactory(inProcessBuilderCustomizers,
+					interceptorsConfigurer);
+			if (interceptorFilter != null) {
+				factory.setInterceptorFilter(interceptorFilter.getIfAvailable(() -> null));
+			}
+			channelFactoryCustomizers.orderedStream().forEach(customizer -> customizer.customize(factory));
+			return factory;
 		}
 
 	}

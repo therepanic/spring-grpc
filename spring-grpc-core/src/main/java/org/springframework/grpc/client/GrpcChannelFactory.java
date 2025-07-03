@@ -39,6 +39,15 @@ public interface GrpcChannelFactory {
 	boolean supports(String target);
 
 	/**
+	 * Whether this factory supports the given global {@link ClientInterceptor}.
+	 * @param interceptor the client interceptor to check support for
+	 * @return whether this factory supports the given interceptor
+	 */
+	default boolean supports(ClientInterceptor interceptor) {
+		return true;
+	}
+
+	/**
 	 * Creates a {@link ManagedChannel} for the given target string. The target can be
 	 * either a valid nameresolver-compliant URI, an authority string as described in
 	 * {@link Grpc#newChannelBuilder(String, ChannelCredentials)}, or a named channel

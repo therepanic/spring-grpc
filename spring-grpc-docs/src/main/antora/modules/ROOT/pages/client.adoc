@@ -247,7 +247,7 @@ In the preceding example, the `globalLoggingInterceptor` is applied prior to the
 [[global-client-interceptor-filtering]]
 ==== Filtering
 All global interceptors are applied to all created channels by default.
-However, you can register a `ClientInterceptorFilter` bean to decide which interceptors are applied to which channel factories.
+However, you can register a `ClientInterceptorFilter` to decide which interceptors are applied to which channel factories.
 
 The following example prevents the `ExtraThingsInterceptor` interceptor from being applied to any channels created by the `InProcessGrpcChannelFactory` channel factory.
 
@@ -259,6 +259,9 @@ ClientInterceptorFilter myInterceptorFilter() {
             && factory instanceof InProcessGrpcChannelFactory);
 }
 ----
+
+The `InProcessGrpcChannelFactory` picks up the `ClientInterceptorFilter` bean automatically and applies it to the global interceptors.
+For other channel factories, you can set the `interceptorFilter` property on the `GrpcChannelFactory` bean to the filter bean using a `GrpcChannelFactoryCustomizer`.
 
 === Per-Channel
 To add one or more client interceptors to be applied to a single client channel you can simply set the interceptor instance(s) on the options passed to the channel factory when creating the channel.

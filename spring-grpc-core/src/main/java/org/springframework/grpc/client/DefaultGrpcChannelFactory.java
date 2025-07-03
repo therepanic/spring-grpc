@@ -24,9 +24,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.core.log.LogAccessor;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 import io.grpc.ChannelCredentials;
+import io.grpc.ClientInterceptor;
 import io.grpc.Grpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -52,9 +54,15 @@ public class DefaultGrpcChannelFactory<T extends ManagedChannelBuilder<T>>
 
 	private final ClientInterceptorsConfigurer interceptorsConfigurer;
 
+	private ClientInterceptorFilter interceptorFilter;
+
 	private ChannelCredentialsProvider credentials = ChannelCredentialsProvider.INSECURE;
 
 	private VirtualTargets targets = VirtualTargets.DEFAULT;
+
+	public void setInterceptorFilter(@Nullable ClientInterceptorFilter interceptorFilter) {
+		this.interceptorFilter = interceptorFilter;
+	}
 
 	/**
 	 * Construct a channel factory instance.
@@ -80,6 +88,11 @@ public class DefaultGrpcChannelFactory<T extends ManagedChannelBuilder<T>>
 	@Override
 	public boolean supports(String target) {
 		return !target.startsWith("in-process:");
+	}
+
+	@Override
+	public boolean supports(ClientInterceptor interceptor) {
+		return this.interceptorFilter == null || this.interceptorFilter.filter(interceptor, this);
 	}
 
 	public void setVirtualTargets(VirtualTargets targets) {

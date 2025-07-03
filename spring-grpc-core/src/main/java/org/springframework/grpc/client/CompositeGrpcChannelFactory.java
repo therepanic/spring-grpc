@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.util.Assert;
 
+import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 
 /**
@@ -47,6 +48,11 @@ public class CompositeGrpcChannelFactory implements GrpcChannelFactory {
 	@Override
 	public boolean supports(String target) {
 		return this.channelFactories.stream().anyMatch((cf) -> cf.supports(target));
+	}
+
+	@Override
+	public boolean supports(ClientInterceptor interceptor) {
+		return this.channelFactories.stream().anyMatch((cf) -> cf.supports(interceptor));
 	}
 
 	@Override
