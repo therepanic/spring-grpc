@@ -39,7 +39,7 @@ public class NettyGrpcServerFactory extends DefaultGrpcServerFactory<NettyServer
 	public NettyGrpcServerFactory(String address,
 			List<ServerBuilderCustomizer<NettyServerBuilder>> serverBuilderCustomizers, KeyManagerFactory keyManager,
 			TrustManagerFactory trustManager, ClientAuth clientAuth) {
-		super(address, serverBuilderCustomizers, keyManager, trustManager, clientAuth, null);
+		super(address, serverBuilderCustomizers, keyManager, trustManager, clientAuth);
 	}
 
 	@Override

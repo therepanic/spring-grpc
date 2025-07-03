@@ -17,6 +17,7 @@
 package org.springframework.grpc.server;
 
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -28,14 +29,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.grpc.internal.GrpcUtils;
+import org.springframework.grpc.server.service.ServerInterceptorFilter;
 import org.springframework.lang.Nullable;
 
-import com.google.common.collect.Lists;
 import io.grpc.Grpc;
 import io.grpc.InsecureServerCredentials;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.ServerCredentials;
+import io.grpc.ServerInterceptor;
 import io.grpc.ServerProvider;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.TlsServerCredentials;
@@ -58,7 +60,7 @@ public class DefaultGrpcServerFactory<T extends ServerBuilder<T>> implements Grp
 	// VisibleForSubclass
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	private final List<ServerServiceDefinition> serviceList = Lists.newLinkedList();
+	private final List<ServerServiceDefinition> serviceList = new LinkedList<>();
 
 	private final String address;
 
@@ -72,19 +74,32 @@ public class DefaultGrpcServerFactory<T extends ServerBuilder<T>> implements Grp
 
 	private ServerServiceDefinitionFilter serviceFilter;
 
+	private ServerInterceptorFilter interceptorFilter;
+
 	public DefaultGrpcServerFactory(String address, List<ServerBuilderCustomizer<T>> serverBuilderCustomizers) {
 		this.address = address;
 		this.serverBuilderCustomizers = Objects.requireNonNull(serverBuilderCustomizers, "serverBuilderCustomizers");
 	}
 
 	public DefaultGrpcServerFactory(String address, List<ServerBuilderCustomizer<T>> serverBuilderCustomizers,
-			KeyManagerFactory keyManager, TrustManagerFactory trustManager, ClientAuth clientAuth,
-			@Nullable ServerServiceDefinitionFilter serviceFilter) {
+			KeyManagerFactory keyManager, TrustManagerFactory trustManager, ClientAuth clientAuth) {
 		this(address, serverBuilderCustomizers);
 		this.keyManager = keyManager;
 		this.trustManager = trustManager;
 		this.clientAuth = clientAuth;
+	}
+
+	public void setServiceFilter(@Nullable ServerServiceDefinitionFilter serviceFilter) {
 		this.serviceFilter = serviceFilter;
+	}
+
+	public void setInterceptorFilter(@Nullable ServerInterceptorFilter interceptorFilter) {
+		this.interceptorFilter = interceptorFilter;
+	}
+
+	@Override
+	public boolean supports(ServerInterceptor interceptor, ServerServiceDefinition service) {
+		return this.interceptorFilter == null || this.interceptorFilter.filter(interceptor, service);
 	}
 
 	protected String address() {

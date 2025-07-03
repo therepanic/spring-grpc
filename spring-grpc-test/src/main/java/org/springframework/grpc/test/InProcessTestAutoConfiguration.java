@@ -90,7 +90,8 @@ public class InProcessTestAutoConfiguration {
 		public TestInProcessGrpcServerFactory(String address,
 				List<ServerBuilderCustomizer<InProcessServerBuilder>> serverBuilderCustomizers,
 				@Nullable ServerServiceDefinitionFilter serviceFilter) {
-			super(address, serverBuilderCustomizers, null, serviceFilter);
+			super(address, serverBuilderCustomizers);
+			setServiceFilter(serviceFilter);
 		}
 
 	}

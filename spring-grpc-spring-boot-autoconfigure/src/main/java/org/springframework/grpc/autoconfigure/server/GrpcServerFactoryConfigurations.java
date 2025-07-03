@@ -21,6 +21,7 @@ import java.util.List;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -65,8 +66,7 @@ class GrpcServerFactoryConfigurations {
 		@Bean
 		ShadedNettyGrpcServerFactory shadedNettyGrpcServerFactory(GrpcServerProperties properties,
 				GrpcServiceDiscoverer serviceDiscoverer, GrpcServiceConfigurer serviceConfigurer,
-				ServerBuilderCustomizers serverBuilderCustomizers, SslBundles bundles,
-				@Nullable ServerServiceDefinitionFilter serviceFilter) {
+				ServerBuilderCustomizers serverBuilderCustomizers, SslBundles bundles) {
 			ShadedNettyServerFactoryPropertyMapper mapper = new ShadedNettyServerFactoryPropertyMapper(properties);
 			List<ServerBuilderCustomizer<io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder>> builderCustomizers = List
 				.of(mapper::customizeServerBuilder, serverBuilderCustomizers::customize);
@@ -79,7 +79,7 @@ class GrpcServerFactoryConfigurations {
 						: io.grpc.netty.shaded.io.netty.handler.ssl.util.InsecureTrustManagerFactory.INSTANCE;
 			}
 			ShadedNettyGrpcServerFactory factory = new ShadedNettyGrpcServerFactory(properties.getAddress(),
-					builderCustomizers, keyManager, trustManager, properties.getSsl().getClientAuth(), serviceFilter);
+					builderCustomizers, keyManager, trustManager, properties.getSsl().getClientAuth());
 			serviceDiscoverer.findServices()
 				.stream()
 				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
@@ -108,8 +108,7 @@ class GrpcServerFactoryConfigurations {
 		@Bean
 		NettyGrpcServerFactory nettyGrpcServerFactory(GrpcServerProperties properties,
 				GrpcServiceDiscoverer serviceDiscoverer, GrpcServiceConfigurer serviceConfigurer,
-				ServerBuilderCustomizers serverBuilderCustomizers, SslBundles bundles,
-				@Nullable ServerServiceDefinitionFilter serviceFilter) {
+				ServerBuilderCustomizers serverBuilderCustomizers, SslBundles bundles) {
 			NettyServerFactoryPropertyMapper mapper = new NettyServerFactoryPropertyMapper(properties);
 			List<ServerBuilderCustomizer<NettyServerBuilder>> builderCustomizers = List
 				.of(mapper::customizeServerBuilder, serverBuilderCustomizers::customize);
@@ -150,13 +149,16 @@ class GrpcServerFactoryConfigurations {
 		@Bean
 		InProcessGrpcServerFactory inProcessGrpcServerFactory(GrpcServerProperties properties,
 				GrpcServiceDiscoverer serviceDiscoverer, GrpcServiceConfigurer serviceConfigurer,
-				ServerBuilderCustomizers serverBuilderCustomizers, @Nullable ServerInterceptorFilter interceptorFilter,
-				@Nullable ServerServiceDefinitionFilter serviceFilter) {
+				ServerBuilderCustomizers serverBuilderCustomizers,
+				ObjectProvider<ServerInterceptorFilter> interceptorFilter,
+				ObjectProvider<ServerServiceDefinitionFilter> serviceFilter) {
 			var mapper = new InProcessServerFactoryPropertyMapper(properties);
 			List<ServerBuilderCustomizer<InProcessServerBuilder>> builderCustomizers = List
 				.of(mapper::customizeServerBuilder, serverBuilderCustomizers::customize);
 			InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory(properties.getInprocess().getName(),
-					builderCustomizers, interceptorFilter, serviceFilter);
+					builderCustomizers);
+			factory.setInterceptorFilter(interceptorFilter.getIfAvailable());
+			factory.setServiceFilter(serviceFilter.getIfAvailable());
 			serviceDiscoverer.findServices()
 				.stream()
 				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
