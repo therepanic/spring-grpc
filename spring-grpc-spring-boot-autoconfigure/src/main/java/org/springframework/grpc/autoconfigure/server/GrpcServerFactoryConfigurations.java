@@ -66,7 +66,8 @@ class GrpcServerFactoryConfigurations {
 		@Bean
 		ShadedNettyGrpcServerFactory shadedNettyGrpcServerFactory(GrpcServerProperties properties,
 				GrpcServiceDiscoverer serviceDiscoverer, GrpcServiceConfigurer serviceConfigurer,
-				ServerBuilderCustomizers serverBuilderCustomizers, SslBundles bundles) {
+				ServerBuilderCustomizers serverBuilderCustomizers, SslBundles bundles,
+				ObjectProvider<GrpcServerFactoryCustomizer> customizers) {
 			ShadedNettyServerFactoryPropertyMapper mapper = new ShadedNettyServerFactoryPropertyMapper(properties);
 			List<ServerBuilderCustomizer<io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder>> builderCustomizers = List
 				.of(mapper::customizeServerBuilder, serverBuilderCustomizers::customize);
@@ -80,6 +81,7 @@ class GrpcServerFactoryConfigurations {
 			}
 			ShadedNettyGrpcServerFactory factory = new ShadedNettyGrpcServerFactory(properties.getAddress(),
 					builderCustomizers, keyManager, trustManager, properties.getSsl().getClientAuth());
+			applyServerFactoryCustomizers(customizers, factory);
 			serviceDiscoverer.findServices()
 				.stream()
 				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
@@ -108,7 +110,8 @@ class GrpcServerFactoryConfigurations {
 		@Bean
 		NettyGrpcServerFactory nettyGrpcServerFactory(GrpcServerProperties properties,
 				GrpcServiceDiscoverer serviceDiscoverer, GrpcServiceConfigurer serviceConfigurer,
-				ServerBuilderCustomizers serverBuilderCustomizers, SslBundles bundles) {
+				ServerBuilderCustomizers serverBuilderCustomizers, SslBundles bundles,
+				ObjectProvider<GrpcServerFactoryCustomizer> customizers) {
 			NettyServerFactoryPropertyMapper mapper = new NettyServerFactoryPropertyMapper(properties);
 			List<ServerBuilderCustomizer<NettyServerBuilder>> builderCustomizers = List
 				.of(mapper::customizeServerBuilder, serverBuilderCustomizers::customize);
@@ -122,6 +125,7 @@ class GrpcServerFactoryConfigurations {
 			}
 			NettyGrpcServerFactory factory = new NettyGrpcServerFactory(properties.getAddress(), builderCustomizers,
 					keyManager, trustManager, properties.getSsl().getClientAuth());
+			applyServerFactoryCustomizers(customizers, factory);
 			serviceDiscoverer.findServices()
 				.stream()
 				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
@@ -151,7 +155,8 @@ class GrpcServerFactoryConfigurations {
 				GrpcServiceDiscoverer serviceDiscoverer, GrpcServiceConfigurer serviceConfigurer,
 				ServerBuilderCustomizers serverBuilderCustomizers,
 				ObjectProvider<ServerInterceptorFilter> interceptorFilter,
-				ObjectProvider<ServerServiceDefinitionFilter> serviceFilter) {
+				ObjectProvider<ServerServiceDefinitionFilter> serviceFilter,
+				ObjectProvider<GrpcServerFactoryCustomizer> customizers) {
 			var mapper = new InProcessServerFactoryPropertyMapper(properties);
 			List<ServerBuilderCustomizer<InProcessServerBuilder>> builderCustomizers = List
 				.of(mapper::customizeServerBuilder, serverBuilderCustomizers::customize);
@@ -159,6 +164,7 @@ class GrpcServerFactoryConfigurations {
 					builderCustomizers);
 			factory.setInterceptorFilter(interceptorFilter.getIfAvailable());
 			factory.setServiceFilter(serviceFilter.getIfAvailable());
+			applyServerFactoryCustomizers(customizers, factory);
 			serviceDiscoverer.findServices()
 				.stream()
 				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
@@ -174,6 +180,11 @@ class GrpcServerFactoryConfigurations {
 			return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod(), eventPublisher);
 		}
 
+	}
+
+	private static void applyServerFactoryCustomizers(ObjectProvider<GrpcServerFactoryCustomizer> customizers,
+			GrpcServerFactory factory) {
+		customizers.orderedStream().forEach(customizer -> customizer.customize(factory));
 	}
 
 }
