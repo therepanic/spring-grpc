@@ -16,9 +16,10 @@
 
 package org.springframework.grpc.server.service;
 
-import io.grpc.ServerServiceDefinition;
-
 import org.springframework.grpc.server.GrpcServerFactory;
+import org.springframework.lang.Nullable;
+
+import io.grpc.ServerServiceDefinition;
 
 /**
  * Configures and binds a {@link GrpcServiceSpec service spec} into a
@@ -34,9 +35,11 @@ public interface GrpcServiceConfigurer {
 	 * Configure and bind a gRPC server spec resulting in a service definition that can
 	 * then be added to a gRPC server.
 	 * @param serviceSpec the spec containing the info about the service
+	 * @param serverFactory the factory that can be used to create a gRPC server, or
+	 * {@code null} if the service is not bound to a specific server factory.
 	 * @return bound and configured service definition that is ready to be added to a
 	 * server
 	 */
-	ServerServiceDefinition configure(GrpcServiceSpec serviceSpec, GrpcServerFactory serverFactory);
+	ServerServiceDefinition configure(GrpcServiceSpec serviceSpec, @Nullable GrpcServerFactory serverFactory);
 
 }

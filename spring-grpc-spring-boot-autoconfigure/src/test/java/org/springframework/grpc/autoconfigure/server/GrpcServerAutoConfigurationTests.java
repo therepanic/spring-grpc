@@ -413,64 +413,40 @@ class GrpcServerAutoConfigurationTests {
 	@Nested
 	class WithAllFactoriesServiceFilterAutoConfig {
 
-		static Stream<Arguments> serverFactoryProvider() {
-			return Stream.of(arguments(
-					(Function<ApplicationContextRunner, ApplicationContextRunner>) (contextRunner) -> contextRunner,
-					ShadedNettyGrpcServerFactory.class),
-					arguments(
-							(Function<ApplicationContextRunner, ApplicationContextRunner>) (
-									contextRunner) -> contextRunner.withClassLoader(new FilteredClassLoader(
-											io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder.class)),
-							NettyGrpcServerFactory.class),
-					arguments(
-							(Function<ApplicationContextRunner, ApplicationContextRunner>) (
-									contextRunner) -> contextRunner
-										.withPropertyValues("spring.grpc.server.inprocess.name=foo")
-										.withClassLoader(new FilteredClassLoader(NettyServerBuilder.class,
-												io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder.class)),
-							InProcessGrpcServerFactory.class));
-		}
-
-		@ParameterizedTest(name = "whenNoServiceFilterThenFactoryUsesNoFilter w/ factory {1}")
-		@MethodSource("serverFactoryProvider")
-		void whenNoServiceFilterThenFactoryUsesNoFilter(
-				Function<ApplicationContextRunner, ApplicationContextRunner> serverFactoryContextCustomizer,
-				Class<?> expectedServerFactoryType) {
+		@Test
+		void whenNoServiceFilterThenFactoryUsesNoFilter() {
 			GrpcServerAutoConfigurationTests.this.contextRunner()
-				.withPropertyValues("spring.grpc.server.port=0")
-				.with(serverFactoryContextCustomizer)
+				.withPropertyValues("spring.grpc.server.inprocess.name=foo")
+				.withClassLoader(new FilteredClassLoader(NettyServerBuilder.class,
+						io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder.class))
 				.run((context) -> assertThat(context).getBean(GrpcServerFactory.class)
-					.isInstanceOf(expectedServerFactoryType)
+					.isInstanceOf(InProcessGrpcServerFactory.class)
 					.extracting("serviceFilter")
 					.isNull());
 		}
 
-		@ParameterizedTest(name = "whenUniqueServiceFilterThenFactoryUsesFilter w/ factory {1}")
-		@MethodSource("serverFactoryProvider")
-		void whenUniqueServiceFilterThenFactoryUsesFilter(
-				Function<ApplicationContextRunner, ApplicationContextRunner> serverFactoryContextCustomizer,
-				Class<?> expectedServerFactoryType) {
+		@Test
+		void whenUniqueServiceFilterThenFactoryUsesFilter() {
 			ServerServiceDefinitionFilter serviceFilter = mock();
 			GrpcServerAutoConfigurationTests.this.contextRunner()
-				.withPropertyValues("spring.grpc.server.port=0")
+				.withPropertyValues("spring.grpc.server.inprocess.name=foo")
+				.withClassLoader(new FilteredClassLoader(NettyServerBuilder.class,
+						io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder.class))
 				.withBean(ServerServiceDefinitionFilter.class, () -> serviceFilter)
-				.with(serverFactoryContextCustomizer)
 				.run((context) -> assertThat(context).getBean(GrpcServerFactory.class)
-					.isInstanceOf(expectedServerFactoryType)
+					.isInstanceOf(InProcessGrpcServerFactory.class)
 					.extracting("serviceFilter")
 					.isSameAs(serviceFilter));
 		}
 
-		@ParameterizedTest(name = "whenMultipleServiceFiltersThenThrowsException w/ factory {1}")
-		@MethodSource("serverFactoryProvider")
-		void whenMultipleServiceFiltersThenThrowsException(
-				Function<ApplicationContextRunner, ApplicationContextRunner> serverFactoryContextCustomizer,
-				Class<?> ignored) {
+		@Test
+		void whenMultipleServiceFiltersThenThrowsException() {
 			GrpcServerAutoConfigurationTests.this.contextRunnerWithLifecyle()
-				.withPropertyValues("spring.grpc.server.port=0")
+				.withPropertyValues("spring.grpc.server.inprocess.name=foo")
+				.withClassLoader(new FilteredClassLoader(NettyServerBuilder.class,
+						io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder.class))
 				.withBean("filter1", ServerServiceDefinitionFilter.class, Mockito::mock)
 				.withBean("filter2", ServerServiceDefinitionFilter.class, Mockito::mock)
-				.with(serverFactoryContextCustomizer)
 				.run((context) -> assertThat(context).hasFailed()
 					.getFailure()
 					.hasMessageContaining("expected single matching bean but found 2: filter1,filter2"));
@@ -501,8 +477,10 @@ class GrpcServerAutoConfigurationTests {
 		@Test
 		void whenNoServerInterceptorFilterThenConfigurerUsesNoFilter() {
 			GrpcServerAutoConfigurationTests.this.contextRunnerWithLifecyle()
-				.withPropertyValues("spring.grpc.server.port=0")
-				.run((context) -> assertThat(context).getBean(GrpcServiceConfigurer.class)
+				.withPropertyValues("spring.grpc.server.inprocess.name=foo")
+				.withClassLoader(new FilteredClassLoader(NettyServerBuilder.class,
+						io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder.class))
+				.run((context) -> assertThat(context).getBean(InProcessGrpcServerFactory.class)
 					.extracting("interceptorFilter")
 					.isNull());
 		}
@@ -511,9 +489,11 @@ class GrpcServerAutoConfigurationTests {
 		void whenUniqueServerInterceptorFilterThenConfigurerUsesFilter() {
 			ServerInterceptorFilter interceptorFilter = mock();
 			GrpcServerAutoConfigurationTests.this.contextRunnerWithLifecyle()
-				.withPropertyValues("spring.grpc.server.port=0")
+				.withPropertyValues("spring.grpc.server.inprocess.name=foo")
+				.withClassLoader(new FilteredClassLoader(NettyServerBuilder.class,
+						io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder.class))
 				.withBean(ServerInterceptorFilter.class, () -> interceptorFilter)
-				.run((context) -> assertThat(context).getBean(GrpcServiceConfigurer.class)
+				.run((context) -> assertThat(context).getBean(InProcessGrpcServerFactory.class)
 					.extracting("interceptorFilter")
 					.isSameAs(interceptorFilter));
 		}
@@ -521,7 +501,9 @@ class GrpcServerAutoConfigurationTests {
 		@Test
 		void whenMultipleServerInterceptorFiltersThenThrowsException() {
 			GrpcServerAutoConfigurationTests.this.contextRunnerWithLifecyle()
-				.withPropertyValues("spring.grpc.server.port=0")
+				.withPropertyValues("spring.grpc.server.inprocess.name=foo")
+				.withClassLoader(new FilteredClassLoader(NettyServerBuilder.class,
+						io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder.class))
 				.withBean("filter1", ServerInterceptorFilter.class, Mockito::mock)
 				.withBean("filter2", ServerInterceptorFilter.class, Mockito::mock)
 				.run((context) -> assertThat(context).hasFailed()

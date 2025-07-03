@@ -30,7 +30,6 @@ import org.springframework.boot.ssl.SslBundle;
 import org.springframework.boot.ssl.SslBundles;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
-import org.springframework.lang.Nullable;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.grpc.server.GrpcServerFactory;
 import org.springframework.grpc.server.InProcessGrpcServerFactory;
@@ -41,6 +40,8 @@ import org.springframework.grpc.server.ShadedNettyGrpcServerFactory;
 import org.springframework.grpc.server.lifecycle.GrpcServerLifecycle;
 import org.springframework.grpc.server.service.GrpcServiceConfigurer;
 import org.springframework.grpc.server.service.GrpcServiceDiscoverer;
+import org.springframework.grpc.server.service.ServerInterceptorFilter;
+import org.springframework.lang.Nullable;
 
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.netty.NettyServerBuilder;
@@ -81,7 +82,7 @@ class GrpcServerFactoryConfigurations {
 					builderCustomizers, keyManager, trustManager, properties.getSsl().getClientAuth(), serviceFilter);
 			serviceDiscoverer.findServices()
 				.stream()
-				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec))
+				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
 				.forEach(factory::addService);
 			return factory;
 		}
@@ -121,10 +122,10 @@ class GrpcServerFactoryConfigurations {
 						: InsecureTrustManagerFactory.INSTANCE;
 			}
 			NettyGrpcServerFactory factory = new NettyGrpcServerFactory(properties.getAddress(), builderCustomizers,
-					keyManager, trustManager, properties.getSsl().getClientAuth(), serviceFilter);
+					keyManager, trustManager, properties.getSsl().getClientAuth());
 			serviceDiscoverer.findServices()
 				.stream()
-				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec))
+				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
 				.forEach(factory::addService);
 			return factory;
 		}
@@ -149,16 +150,16 @@ class GrpcServerFactoryConfigurations {
 		@Bean
 		InProcessGrpcServerFactory inProcessGrpcServerFactory(GrpcServerProperties properties,
 				GrpcServiceDiscoverer serviceDiscoverer, GrpcServiceConfigurer serviceConfigurer,
-				ServerBuilderCustomizers serverBuilderCustomizers,
+				ServerBuilderCustomizers serverBuilderCustomizers, @Nullable ServerInterceptorFilter interceptorFilter,
 				@Nullable ServerServiceDefinitionFilter serviceFilter) {
 			var mapper = new InProcessServerFactoryPropertyMapper(properties);
 			List<ServerBuilderCustomizer<InProcessServerBuilder>> builderCustomizers = List
 				.of(mapper::customizeServerBuilder, serverBuilderCustomizers::customize);
 			InProcessGrpcServerFactory factory = new InProcessGrpcServerFactory(properties.getInprocess().getName(),
-					builderCustomizers, serviceFilter);
+					builderCustomizers, interceptorFilter, serviceFilter);
 			serviceDiscoverer.findServices()
 				.stream()
-				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec))
+				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
 				.forEach(factory::addService);
 			return factory;
 		}

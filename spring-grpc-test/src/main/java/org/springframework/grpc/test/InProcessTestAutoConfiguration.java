@@ -62,7 +62,7 @@ public class InProcessTestAutoConfiguration {
 		var factory = new TestInProcessGrpcServerFactory(address, customizers, serviceFilter);
 		serviceDiscoverer.findServices()
 			.stream()
-			.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec))
+			.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, factory))
 			.forEach(factory::addService);
 		return factory;
 	}
@@ -90,7 +90,7 @@ public class InProcessTestAutoConfiguration {
 		public TestInProcessGrpcServerFactory(String address,
 				List<ServerBuilderCustomizer<InProcessServerBuilder>> serverBuilderCustomizers,
 				@Nullable ServerServiceDefinitionFilter serviceFilter) {
-			super(address, serverBuilderCustomizers, serviceFilter);
+			super(address, serverBuilderCustomizers, null, serviceFilter);
 		}
 
 	}

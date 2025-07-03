@@ -44,12 +44,8 @@ public class DefaultGrpcServiceConfigurer implements GrpcServiceConfigurer, Init
 
 	private List<ServerInterceptor> globalInterceptors;
 
-	private ServerInterceptorFilter interceptorFilter;
-
-	public DefaultGrpcServiceConfigurer(ApplicationContext applicationContext,
-			@Nullable ServerInterceptorFilter interceptorFilter) {
+	public DefaultGrpcServiceConfigurer(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
-		this.interceptorFilter = interceptorFilter;
 	}
 
 	@Override
@@ -58,7 +54,7 @@ public class DefaultGrpcServiceConfigurer implements GrpcServiceConfigurer, Init
 	}
 
 	@Override
-	public ServerServiceDefinition configure(GrpcServiceSpec serviceSpec, GrpcServerFactory serverFactory) {
+	public ServerServiceDefinition configure(GrpcServiceSpec serviceSpec, @Nullable GrpcServerFactory serverFactory) {
 		Assert.notNull(serviceSpec, () -> "serviceSpec must not be null");
 		return bindInterceptors(serviceSpec.service(), serviceSpec.serviceInfo(), serverFactory);
 	}
@@ -69,13 +65,12 @@ public class DefaultGrpcServiceConfigurer implements GrpcServiceConfigurer, Init
 	}
 
 	private ServerServiceDefinition bindInterceptors(BindableService bindableService,
-			@Nullable GrpcServiceInfo serviceInfo,
-			GrpcServerFactory serverFactory) {
+			@Nullable GrpcServiceInfo serviceInfo, GrpcServerFactory serverFactory) {
 		var serviceDef = bindableService.bindService();
 
 		// Add and filter global interceptors first
 		List<ServerInterceptor> allInterceptors = new ArrayList<>(this.globalInterceptors);
-		if (this.interceptorFilter != null) {
+		if (serverFactory != null) {
 			allInterceptors.removeIf(interceptor -> !serverFactory.supports(interceptor, serviceDef));
 		}
 		if (serviceInfo == null) {

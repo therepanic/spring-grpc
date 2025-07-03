@@ -65,9 +65,8 @@ public class GrpcServerAutoConfiguration {
 
 	@ConditionalOnMissingBean(GrpcServiceConfigurer.class)
 	@Bean
-	DefaultGrpcServiceConfigurer grpcServiceConfigurer(ApplicationContext applicationContext,
-			@Nullable ServerInterceptorFilter interceptorFilter) {
-		return new DefaultGrpcServiceConfigurer(applicationContext, interceptorFilter);
+	DefaultGrpcServiceConfigurer grpcServiceConfigurer(ApplicationContext applicationContext) {
+		return new DefaultGrpcServiceConfigurer(applicationContext);
 	}
 
 	@ConditionalOnMissingBean(GrpcServiceDiscoverer.class)

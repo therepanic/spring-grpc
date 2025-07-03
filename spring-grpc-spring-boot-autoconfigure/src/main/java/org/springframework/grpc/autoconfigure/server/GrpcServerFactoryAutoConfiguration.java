@@ -96,7 +96,7 @@ public class GrpcServerFactoryAutoConfiguration {
 			ServletServerBuilder servletServerBuilder = new ServletServerBuilder();
 			serviceDiscoverer.findServices()
 				.stream()
-				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec))
+				.map((serviceSpec) -> serviceConfigurer.configure(serviceSpec, null))
 				.forEach(servletServerBuilder::addService);
 			PropertyMapper mapper = PropertyMapper.get().alwaysApplyingWhenNonNull();
 			mapper.from(properties.getMaxInboundMessageSize())

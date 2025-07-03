@@ -32,17 +32,14 @@ import io.grpc.inprocess.InProcessServerBuilder;
  */
 public class InProcessGrpcServerFactory extends DefaultGrpcServerFactory<InProcessServerBuilder> {
 
-	private ServerServiceDefinitionFilter serviceFilter;
-
 	private ServerInterceptorFilter interceptorFilter;
 
 	public InProcessGrpcServerFactory(String address,
 			List<ServerBuilderCustomizer<InProcessServerBuilder>> serverBuilderCustomizers,
 			@Nullable ServerInterceptorFilter interceptorFilter,
 			@Nullable ServerServiceDefinitionFilter serviceFilter) {
-		super(address, serverBuilderCustomizers, null, null, null);
+		super(address, serverBuilderCustomizers, null, null, null, serviceFilter);
 		this.interceptorFilter = interceptorFilter;
-		this.serviceFilter = serviceFilter;
 	}
 
 	@Override
@@ -51,14 +48,8 @@ public class InProcessGrpcServerFactory extends DefaultGrpcServerFactory<InProce
 	}
 
 	@Override
-	public void addService(ServerServiceDefinition service) {
-		if (this.serviceFilter == null || this.serviceFilter.filter(service, this)) {
-			super.addService(service);
-		}
-	}
-
-	@Override
 	public boolean supports(ServerInterceptor interceptor, ServerServiceDefinition service) {
 		return (this.interceptorFilter == null || this.interceptorFilter.filter(interceptor, service));
 	}
+
 }
