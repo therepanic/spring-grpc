@@ -88,9 +88,7 @@ public class GrpcClientFactory implements ApplicationContextAware {
 			}
 			AnnotationAwareOrderComparator.sort(factories);
 			for (StubFactory<?> factory : factories) {
-				if (supports(factory.getClass(), type)) {
-					this.factories.put(factory.getClass(), factory);
-				}
+				this.factories.put(factory.getClass(), factory);
 			}
 			for (Class<?> factory : DEFAULT_FACTORIES) {
 				if (this.factories.containsKey(factory)) {

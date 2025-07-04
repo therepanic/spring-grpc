@@ -46,7 +46,7 @@ public class GrpcClientFactoryTests {
 
 	GrpcClientFactoryTests() {
 		Mockito.when(channelFactory.createChannel(Mockito.anyString(), Mockito.any()))
-			.thenReturn(Mockito.mock(ManagedChannel.class));
+				.thenReturn(Mockito.mock(ManagedChannel.class));
 		context.registerBean(GrpcChannelFactory.class, () -> channelFactory);
 		factory = new GrpcClientFactory();
 		factory.setApplicationContext(context);
@@ -75,7 +75,7 @@ public class GrpcClientFactoryTests {
 	void testWithExplicitStubFactory() {
 		context.registerBean(OtherStubFactory.class, () -> new OtherStubFactory());
 		GrpcClientFactory.register(context, new GrpcClientRegistrationSpec("local", new Class[] { OtherStub.class })
-			.factory(OtherStubFactory.class));
+				.factory(OtherStubFactory.class));
 		assertThat(factory.getClient("local", OtherStub.class, null)).isNotNull();
 	}
 
@@ -96,9 +96,23 @@ public class GrpcClientFactoryTests {
 		context.registerBean(CoroutineStubFactory.class, CoroutineStubFactory::new);
 		GrpcClientFactory.register(context,
 				GrpcClientRegistrationSpec.of("local")
-					.factory(CoroutineStubFactory.class)
-					.types(MyCoroutineStub.class));
+						.factory(CoroutineStubFactory.class)
+						.types(MyCoroutineStub.class));
 		assertThat(factory.getClient("local", MyCoroutineStub.class, null)).isNotNull();
+	}
+
+	@Test
+	void testCoroutineStubFactoryAfterDefault() {
+		context.registerBean(CoroutineStubFactory.class, CoroutineStubFactory::new);
+		GrpcClientFactory.register(context,
+				GrpcClientRegistrationSpec.of("local")
+						.types(MyStub.class));
+		GrpcClientFactory.register(context,
+				GrpcClientRegistrationSpec.of("local")
+						.factory(CoroutineStubFactory.class)
+						.types(MyCoroutineStub.class));
+		assertThat(factory.getClient("local", MyCoroutineStub.class, null)).isNotNull();
+		assertThat(factory.getClient("local", MyStub.class, null)).isNotNull();
 	}
 
 	static class OtherStubFactory implements StubFactory<OtherStub> {
