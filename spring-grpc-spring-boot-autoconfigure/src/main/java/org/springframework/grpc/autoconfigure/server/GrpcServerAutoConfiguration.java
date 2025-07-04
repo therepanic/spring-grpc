@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.Ordered;
 import org.springframework.grpc.autoconfigure.common.codec.GrpcCodecConfiguration;
 import org.springframework.grpc.server.ServerBuilderCustomizer;
 import org.springframework.grpc.server.exception.ReactiveStubBeanDefinitionRegistrar;
@@ -86,6 +87,34 @@ public class GrpcServerAutoConfiguration {
 	<T extends ServerBuilder<T>> ServerBuilderCustomizer<T> decompressionServerConfigurer(
 			DecompressorRegistry registry) {
 		return builder -> builder.decompressorRegistry(registry);
+	}
+
+	@ConditionalOnBean(GrpcServerExecutorProvider.class)
+	@Bean
+	<T extends ServerBuilder<T>> ServerBuilderCustomizer<T> executorServerConfigurer(
+			GrpcServerExecutorProvider provider) {
+		return new ServerBuilderCustomizerImplementation<T>(provider);
+	}
+
+	private final class ServerBuilderCustomizerImplementation<T extends ServerBuilder<T>>
+			implements ServerBuilderCustomizer<T>, Ordered {
+
+		private final GrpcServerExecutorProvider provider;
+
+		private ServerBuilderCustomizerImplementation(GrpcServerExecutorProvider provider) {
+			this.provider = provider;
+		}
+
+		@Override
+		public int getOrder() {
+			return 0;
+		}
+
+		@Override
+		public void customize(T builder) {
+			builder.executor(provider.getExecutor());
+		}
+
 	}
 
 	@ConditionalOnClass(name = "com.salesforce.reactivegrpc.common.Function")

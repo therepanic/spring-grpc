@@ -18,6 +18,7 @@ package org.springframework.grpc.autoconfigure.server.security;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -25,10 +26,10 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.grpc.autoconfigure.server.ConditionalOnGrpcServerEnabled;
+import org.springframework.grpc.autoconfigure.server.GrpcServerExecutorProvider;
 import org.springframework.grpc.autoconfigure.server.GrpcServerFactoryAutoConfiguration;
 import org.springframework.grpc.autoconfigure.server.exception.GrpcExceptionHandlerAutoConfiguration;
 import org.springframework.grpc.server.GlobalServerInterceptor;
-import org.springframework.grpc.server.ServerBuilderCustomizer;
 import org.springframework.grpc.server.exception.GrpcExceptionHandler;
 import org.springframework.grpc.server.security.GrpcSecurity;
 import org.springframework.grpc.server.security.SecurityContextServerInterceptor;
@@ -39,7 +40,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.web.SecurityFilterChain;
 
-import io.grpc.ServerBuilder;
 import io.grpc.internal.GrpcUtil;
 
 @ConditionalOnClass(ObjectPostProcessor.class)
@@ -91,9 +91,9 @@ class GrpcServletSecurityConfigurerAutoConfiguration {
 	}
 
 	@Bean
-	public <T extends ServerBuilder<T>> ServerBuilderCustomizer<T> securityContextExecutorCustomizer() {
-		return (serverBuilder) -> serverBuilder
-			.executor(new DelegatingSecurityContextExecutor(GrpcUtil.SHARED_CHANNEL_EXECUTOR.create()));
+	@ConditionalOnMissingBean(GrpcServerExecutorProvider.class)
+	public GrpcServerExecutorProvider grpcServerExecutorProvider() {
+		return () -> new DelegatingSecurityContextExecutor(GrpcUtil.SHARED_CHANNEL_EXECUTOR.create());
 	}
 
 }
