@@ -17,14 +17,15 @@ The easiest way to activate it is to simply add a Spring `@Service` annotation t
 All available `BindableService` beans are bound to all running gRPC servers.
 However, you can register a `ServerServiceDefinitionFilter` bean to decide which services are bound to which server factories.
 
-The following example prevents the `my-unwanted-service` service from being applied to any servers created by the server factory that the filter is applied to.
+The following example prevents the "health" and "reflection" service from being bound to the server created by the server factory that the filter is applied to (e.g. the `InProcessGrpcServerFactory`).
 
 [source,java]
 ----
 @Bean
 ServerServiceDefinitionFilter myServiceFilter() {
-	return (serviceDefinition, __) ->
-			!(serviceDefinition.getServiceDescriptor().getName().equals("my-unwanted-service"));
+    return (serviceDefinition, __) ->
+            !Set.of(HealthGrpc.SERVICE_NAME, ServerReflectionGrpc.SERVICE_NAME)
+                    .contains(serviceDefinition.getServiceDescriptor().getName());
 }
 ----
 
