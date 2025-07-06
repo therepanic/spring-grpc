@@ -36,7 +36,6 @@ import org.springframework.grpc.client.ShadedNettyGrpcChannelFactory;
 
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.netty.NettyChannelBuilder;
-import io.netty.channel.Channel;
 
 /**
  * Configurations for {@link GrpcChannelFactory gRPC channel factories}.
