@@ -33,7 +33,7 @@ import io.grpc.BindableService;
 
 // Copied from Spring Boot (https://github.com/spring-projects/spring-boot/issues/43978)
 @AutoConfiguration(before = { GrpcSecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class },
-		after = { GrpcServerFactoryAutoConfiguration.class, OAuth2ResourceServerAutoConfiguration.class })
+		after = { GrpcServerFactoryAutoConfiguration.class })
 @EnableConfigurationProperties(OAuth2ResourceServerProperties.class)
 @ConditionalOnClass({ BearerTokenAuthenticationToken.class, ObjectPostProcessor.class })
 @ConditionalOnMissingBean(GrpcServletConfiguration.class)
