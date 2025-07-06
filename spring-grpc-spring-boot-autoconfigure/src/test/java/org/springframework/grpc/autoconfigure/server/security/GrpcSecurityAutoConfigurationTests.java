@@ -18,10 +18,9 @@ package org.springframework.grpc.autoconfigure.server.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Arrays;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener;
 import org.springframework.boot.logging.LogLevel;
@@ -64,7 +63,6 @@ class GrpcSecurityAutoConfigurationTests {
 			.withInitializer(ConditionEvaluationReportLoggingListener.forLogLevel(LogLevel.INFO))
 			.withConfiguration(AutoConfigurations.of(GrpcSecurityAutoConfiguration.class))
 			.run((context) -> {
-				System.err.println(Arrays.asList(context.getBeanDefinitionNames()));
 				assertThat(context).hasSingleBean(GrpcSecurity.class);
 			});
 	}

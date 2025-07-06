@@ -16,15 +16,16 @@
 
 package org.springframework.grpc.autoconfigure.common.codec;
 
-import io.grpc.Codec;
-import io.grpc.Compressor;
-import io.grpc.Decompressor;
-import io.grpc.DecompressorRegistry;
-import io.grpc.CompressorRegistry;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import io.grpc.Codec;
+import io.grpc.Compressor;
+import io.grpc.CompressorRegistry;
+import io.grpc.Decompressor;
+import io.grpc.DecompressorRegistry;
 
 /**
  * The configuration that contains all codec related beans for clients/servers.

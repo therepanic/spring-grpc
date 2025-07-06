@@ -54,6 +54,11 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
  */
 class GrpcServerFactoryConfigurations {
 
+	private static void applyServerFactoryCustomizers(ObjectProvider<GrpcServerFactoryCustomizer> customizers,
+			GrpcServerFactory factory) {
+		customizers.orderedStream().forEach(customizer -> customizer.customize(factory));
+	}
+
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder.class)
 	@ConditionalOnMissingBean(value = GrpcServerFactory.class, ignored = InProcessGrpcServerFactory.class)
@@ -179,11 +184,6 @@ class GrpcServerFactoryConfigurations {
 			return new GrpcServerLifecycle(factory, properties.getShutdownGracePeriod(), eventPublisher);
 		}
 
-	}
-
-	private static void applyServerFactoryCustomizers(ObjectProvider<GrpcServerFactoryCustomizer> customizers,
-			GrpcServerFactory factory) {
-		customizers.orderedStream().forEach(customizer -> customizer.customize(factory));
 	}
 
 }

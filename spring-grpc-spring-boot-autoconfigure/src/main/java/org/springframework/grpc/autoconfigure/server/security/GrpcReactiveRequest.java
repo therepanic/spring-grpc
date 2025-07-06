@@ -36,8 +36,10 @@ import reactor.core.publisher.Mono;
 /**
  * Factory for a request matcher used to match against resource locations for gRPC
  * services.
+ *
+ * @author Dave Syer
  */
-public class GrpcReactiveRequest {
+public final class GrpcReactiveRequest {
 
 	private GrpcReactiveRequest() {
 	}

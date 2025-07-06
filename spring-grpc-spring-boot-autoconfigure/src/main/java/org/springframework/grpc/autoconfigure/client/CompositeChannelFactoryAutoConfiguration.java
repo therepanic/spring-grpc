@@ -28,8 +28,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.grpc.client.CompositeGrpcChannelFactory;
 import org.springframework.grpc.client.GrpcChannelFactory;
 
-import static org.springframework.grpc.autoconfigure.client.CompositeChannelFactoryAutoConfiguration.*;
-
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for a
  * {@link CompositeGrpcChannelFactory}.
@@ -37,7 +35,7 @@ import static org.springframework.grpc.autoconfigure.client.CompositeChannelFact
  * @author Chris Bono
  */
 @AutoConfiguration
-@Conditional(MultipleNonPrimaryChannelFactoriesCondition.class)
+@Conditional(CompositeChannelFactoryAutoConfiguration.MultipleNonPrimaryChannelFactoriesCondition.class)
 class CompositeChannelFactoryAutoConfiguration {
 
 	@Bean

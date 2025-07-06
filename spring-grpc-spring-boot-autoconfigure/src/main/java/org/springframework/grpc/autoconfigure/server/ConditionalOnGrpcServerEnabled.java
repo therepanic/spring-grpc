@@ -31,7 +31,7 @@ import io.grpc.BindableService;
  * {@code io.grpc.BindableService} class is on the classpath and the
  * {@code spring.grpc.server.enabled} property is not explicitly set to {@code false}.
  *
- * @author Freeman
+ * @author Freeman Freeman
  * @author Chris Bono
  */
 @Retention(RetentionPolicy.RUNTIME)

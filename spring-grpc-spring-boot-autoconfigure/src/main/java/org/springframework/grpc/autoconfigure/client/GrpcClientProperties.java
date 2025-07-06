@@ -87,7 +87,7 @@ public class GrpcClientProperties implements EnvironmentAware, VirtualTargets {
 				address = "static://" + name;
 			}
 			else {
-				address = defaultChannel.getAddress();
+				address = this.defaultChannel.getAddress();
 				if (!address.contains(":/")) {
 					address = "static://" + address;
 				}
@@ -151,7 +151,7 @@ public class GrpcClientProperties implements EnvironmentAware, VirtualTargets {
 		}
 
 		/**
-		 * Map representation of the service config to use for the channel
+		 * Map representation of the service config to use for the channel.
 		 */
 		private final Map<String, Object> serviceConfig = new HashMap<>();
 
@@ -322,7 +322,7 @@ public class GrpcClientProperties implements EnvironmentAware, VirtualTargets {
 		private Duration defaultDeadline = null;
 
 		public Duration getDefaultDeadline() {
-			return defaultDeadline;
+			return this.defaultDeadline;
 		}
 
 		public void setDefaultDeadline(final Duration defaultDeadline) {

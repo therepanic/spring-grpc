@@ -16,18 +16,19 @@
 
 package org.springframework.grpc.autoconfigure.server;
 
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import io.grpc.ServerBuilder;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.util.unit.DataSize;
 
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
+import io.grpc.ServerBuilder;
 
 /**
  * Tests for {@link DefaultServerFactoryPropertyMapper},

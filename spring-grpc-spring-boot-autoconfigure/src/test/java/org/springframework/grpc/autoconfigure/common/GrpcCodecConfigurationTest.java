@@ -16,14 +16,16 @@
 
 package org.springframework.grpc.autoconfigure.common;
 
-import io.grpc.CompressorRegistry;
-import io.grpc.DecompressorRegistry;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
+
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.grpc.autoconfigure.common.codec.GrpcCodecConfiguration;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import io.grpc.CompressorRegistry;
+import io.grpc.DecompressorRegistry;
 
 /**
  * Tests for {@link GrpcCodecConfiguration}.

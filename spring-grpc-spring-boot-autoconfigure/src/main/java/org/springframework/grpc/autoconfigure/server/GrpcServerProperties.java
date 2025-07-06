@@ -88,6 +88,12 @@ public class GrpcServerProperties {
 		this.address = address;
 	}
 
+	private final Ssl ssl = new Ssl();
+
+	public Ssl getSsl() {
+		return this.ssl;
+	}
+
 	public String getHost() {
 		return this.host;
 	}
@@ -348,12 +354,6 @@ public class GrpcServerProperties {
 
 	}
 
-	private final Ssl ssl = new Ssl();
-
-	public Ssl getSsl() {
-		return this.ssl;
-	}
-
 	public static class Ssl {
 
 		/**
@@ -436,7 +436,7 @@ public class GrpcServerProperties {
 		private Boolean exclusive;
 
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		public void setName(String name) {
@@ -444,7 +444,7 @@ public class GrpcServerProperties {
 		}
 
 		public Boolean getExclusive() {
-			return exclusive;
+			return this.exclusive;
 		}
 
 		public void setExclusive(Boolean exclusive) {
