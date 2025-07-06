@@ -110,7 +110,7 @@ public class GrpcServerAutoConfiguration {
 
 		@Override
 		public void customize(T builder) {
-			builder.executor(provider.getExecutor());
+			builder.executor(this.provider.getExecutor());
 		}
 
 	}

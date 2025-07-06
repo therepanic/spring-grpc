@@ -34,9 +34,9 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
  * disabled unless explicitly enabled in the application properties.
  * </p>
  *
+ * @author Dave Syer
  * @see AbstractHttpConfigurer
  * @see HttpSecurity
- * @author Dave Syer
  */
 public class GrpcDisableCsrfHttpConfigurer extends AbstractHttpConfigurer<GrpcDisableCsrfHttpConfigurer, HttpSecurity> {
 

@@ -21,18 +21,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import io.grpc.ServerBuilder;
-
 import org.springframework.boot.context.properties.PropertyMapper;
 import org.springframework.grpc.server.DefaultGrpcServerFactory;
 import org.springframework.util.unit.DataSize;
+
+import io.grpc.ServerBuilder;
 
 /**
  * Helper class used to map {@link GrpcServerProperties} to
  * {@link DefaultGrpcServerFactory}.
  *
- * @author Chris Bono
  * @param <T> the type of server builder
+ * @author Chris Bono
  */
 class DefaultServerFactoryPropertyMapper<T extends ServerBuilder<T>> {
 
@@ -74,10 +74,10 @@ class DefaultServerFactoryPropertyMapper<T extends ServerBuilder<T>> {
 	 * @param mapper the property mapper
 	 */
 	void customizeInboundLimits(T serverBuilder, PropertyMapper mapper) {
-		mapper.from(properties.getMaxInboundMessageSize())
+		mapper.from(this.properties.getMaxInboundMessageSize())
 			.asInt(DataSize::toBytes)
 			.to(serverBuilder::maxInboundMessageSize);
-		mapper.from(properties.getMaxInboundMetadataSize())
+		mapper.from(this.properties.getMaxInboundMetadataSize())
 			.asInt(DataSize::toBytes)
 			.to(serverBuilder::maxInboundMetadataSize);
 	}

@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener;
@@ -68,6 +69,35 @@ class OAuth2ResourceServerAutoConfigurationTests {
 					GrpcSecurityAutoConfiguration.class))
 			.withBean(BindableService.class, () -> service)
 			.withBean("noopServerLifecycle", GrpcServerLifecycle.class, Mockito::mock);
+	}
+
+	@Test
+	void jwtConfiguredWhenIssuerIsProvided() {
+		this.contextRunner()
+			.withPropertyValues("spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:9000")
+			.run((context) -> {
+				assertThat(context).hasSingleBean(AuthenticationProcessInterceptor.class);
+			});
+	}
+
+	@Test
+	void jwtConfiguredWhenJwkSetIsProvided() {
+		this.contextRunner()
+			.withPropertyValues("spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost:9000")
+			.run((context) -> {
+				assertThat(context).hasSingleBean(AuthenticationProcessInterceptor.class);
+			});
+	}
+
+	@Test
+	void customInterceptorWhenJwkSetIsProvided() {
+		this.contextRunner()
+			.withInitializer(ConditionEvaluationReportLoggingListener.forLogLevel(LogLevel.INFO))
+			.withConfiguration(UserConfigurations.of(CustomInterceptorConfiguration.class))
+			.withPropertyValues("spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost:9000")
+			.run((context) -> {
+				assertThat(context).hasSingleBean(AuthenticationProcessInterceptor.class);
+			});
 	}
 
 	@Test
@@ -136,35 +166,6 @@ class OAuth2ResourceServerAutoConfigurationTests {
 			}
 		}
 
-	}
-
-	@Test
-	void jwtConfiguredWhenIssuerIsProvided() {
-		this.contextRunner()
-			.withPropertyValues("spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:9000")
-			.run((context) -> {
-				assertThat(context).hasSingleBean(AuthenticationProcessInterceptor.class);
-			});
-	}
-
-	@Test
-	void jwtConfiguredWhenJwkSetIsProvided() {
-		this.contextRunner()
-			.withPropertyValues("spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost:9000")
-			.run((context) -> {
-				assertThat(context).hasSingleBean(AuthenticationProcessInterceptor.class);
-			});
-	}
-
-	@Test
-	void customInterceptorWhenJwkSetIsProvided() {
-		this.contextRunner()
-			.withInitializer(ConditionEvaluationReportLoggingListener.forLogLevel(LogLevel.INFO))
-			.withConfiguration(UserConfigurations.of(CustomInterceptorConfiguration.class))
-			.withPropertyValues("spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost:9000")
-			.run((context) -> {
-				assertThat(context).hasSingleBean(AuthenticationProcessInterceptor.class);
-			});
 	}
 
 	@Configuration(proxyBeanMethods = false)

@@ -16,19 +16,20 @@
 
 package org.springframework.grpc.autoconfigure.server;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import io.grpc.ServerBuilder;
-import io.grpc.netty.NettyServerBuilder;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.grpc.server.ServerBuilderCustomizer;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
+import io.grpc.ServerBuilder;
+import io.grpc.netty.NettyServerBuilder;
 
 /**
  * Tests for {@link ServerBuilderCustomizers}.

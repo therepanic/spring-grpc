@@ -16,17 +16,19 @@
 
 package org.springframework.grpc.autoconfigure.client;
 
-import io.grpc.stub.AbstractStub;
-import io.micrometer.core.instrument.binder.grpc.ObservationGrpcClientInterceptor;
-import io.micrometer.observation.ObservationRegistry;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.grpc.client.GlobalClientInterceptor;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import io.grpc.stub.AbstractStub;
+import io.micrometer.core.instrument.binder.grpc.ObservationGrpcClientInterceptor;
+import io.micrometer.observation.ObservationRegistry;
 
 /**
  * Tests for the {@link GrpcClientObservationAutoConfiguration}.

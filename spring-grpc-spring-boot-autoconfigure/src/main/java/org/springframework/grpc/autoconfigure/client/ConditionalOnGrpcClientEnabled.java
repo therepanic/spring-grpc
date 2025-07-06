@@ -15,21 +15,23 @@
  */
 package org.springframework.grpc.autoconfigure.client;
 
-import io.grpc.stub.AbstractStub;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Conditional;
+
+import io.grpc.stub.AbstractStub;
 
 /**
  * {@link Conditional @Conditional} that only matches when the {@code io.grpc:grpc-stub}
  * module is in the classpath and the {@code spring.grpc.client.enabled} property is not
  * explicitly set to {@code false}.
  *
- * @author Freeman
+ * @author Freeman Freeman
  * @author Chris Bono
  */
 @Retention(RetentionPolicy.RUNTIME)

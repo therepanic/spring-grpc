@@ -60,13 +60,13 @@ public class ClientScanConfiguration {
 
 		@Override
 		protected GrpcClientRegistrationSpec[] collect(AnnotationMetadata meta) {
-			Binder binder = Binder.get(environment);
+			Binder binder = Binder.get(this.environment);
 			boolean hasDefaultChannel = binder.bind("spring.grpc.client.default-channel", ChannelConfig.class)
 				.isBound();
 			if (hasDefaultChannel) {
 				List<String> packages = new ArrayList<>();
-				if (AutoConfigurationPackages.has(beanFactory)) {
-					packages.addAll(AutoConfigurationPackages.get(beanFactory));
+				if (AutoConfigurationPackages.has(this.beanFactory)) {
+					packages.addAll(AutoConfigurationPackages.get(this.beanFactory));
 				}
 				// TODO: change global default factory type in properties maybe?
 				return new GrpcClientRegistrationSpec[] { GrpcClientRegistrationSpec.of("default")

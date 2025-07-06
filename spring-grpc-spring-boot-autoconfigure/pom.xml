@@ -20,10 +20,6 @@
 		<developerConnection>git@github.com:spring-projects/spring-grpc.git</developerConnection>
 	</scm>
 
-	<properties>
-		<disable.checkstyle.checks>true</disable.checkstyle.checks>
-	</properties>
-
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

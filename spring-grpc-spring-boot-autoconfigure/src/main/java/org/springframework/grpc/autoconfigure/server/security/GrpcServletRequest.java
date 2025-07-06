@@ -35,8 +35,10 @@ import jakarta.servlet.http.HttpServletRequest;
 /**
  * Factory for a request matcher used to match against resource locations for gRPC
  * services.
+ *
+ * @author Dave Syer
  */
-public class GrpcServletRequest {
+public final class GrpcServletRequest {
 
 	private GrpcServletRequest() {
 	}
