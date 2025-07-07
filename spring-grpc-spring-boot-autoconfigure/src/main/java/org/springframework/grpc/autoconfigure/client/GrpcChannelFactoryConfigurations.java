@@ -34,6 +34,7 @@ import org.springframework.grpc.client.InProcessGrpcChannelFactory;
 import org.springframework.grpc.client.NettyGrpcChannelFactory;
 import org.springframework.grpc.client.ShadedNettyGrpcChannelFactory;
 
+import io.grpc.Channel;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.netty.NettyChannelBuilder;
 
@@ -71,8 +72,7 @@ class GrpcChannelFactoryConfigurations {
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnClass({ io.grpc.netty.shaded.io.netty.channel.Channel.class,
-			io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder.class })
+	@ConditionalOnClass({ Channel.class, NettyChannelBuilder.class })
 	@ConditionalOnMissingBean(value = GrpcChannelFactory.class, ignored = InProcessGrpcChannelFactory.class)
 	@ConditionalOnProperty(prefix = "spring.grpc.client.inprocess.", name = "exclusive", havingValue = "false",
 			matchIfMissing = true)
