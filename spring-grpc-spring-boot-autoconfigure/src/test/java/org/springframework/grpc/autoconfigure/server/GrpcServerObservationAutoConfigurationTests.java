@@ -18,15 +18,19 @@ package org.springframework.grpc.autoconfigure.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.grpc.server.GlobalServerInterceptor;
 
+import io.grpc.ServerInterceptor;
 import io.micrometer.core.instrument.binder.grpc.ObservationGrpcServerInterceptor;
 import io.micrometer.observation.ObservationRegistry;
 
@@ -102,8 +106,13 @@ class GrpcServerObservationAutoConfigurationTests {
 	void whenAllConditionsAreMetThenInterceptorConfiguredAsExpected() {
 		this.validContextRunner()
 			.run((context) -> assertThat(context).hasSingleBean(ObservationGrpcServerInterceptor.class)
-				.has(new Condition<>(beans -> beans.getBeansWithAnnotation(GlobalServerInterceptor.class).size() == 1,
-						"One global interceptor expected")));
+				.has(new Condition<>(beans -> {
+					Map<String, Object> annotated = beans.getBeansWithAnnotation(GlobalServerInterceptor.class);
+					List<ServerInterceptor> interceptors = beans.getBeanProvider(ServerInterceptor.class)
+						.orderedStream()
+						.collect(Collectors.toList());
+					return annotated.size() == 2 && interceptors.get(0) instanceof ObservationGrpcServerInterceptor;
+				}, "Two global interceptors expected")));
 	}
 
 }

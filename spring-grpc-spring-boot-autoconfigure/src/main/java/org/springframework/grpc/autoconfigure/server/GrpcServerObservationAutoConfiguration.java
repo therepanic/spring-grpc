@@ -20,9 +20,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.grpc.server.GlobalServerInterceptor;
 
 import io.micrometer.core.instrument.binder.grpc.ObservationGrpcServerInterceptor;
+import io.micrometer.core.instrument.kotlin.ObservationCoroutineContextServerInterceptor;
 import io.micrometer.observation.ObservationRegistry;
 
 @AutoConfiguration(
@@ -34,9 +37,24 @@ import io.micrometer.observation.ObservationRegistry;
 public class GrpcServerObservationAutoConfiguration {
 
 	@Bean
+	@Order(0)
 	@GlobalServerInterceptor
 	ObservationGrpcServerInterceptor observationGrpcServerInterceptor(ObservationRegistry observationRegistry) {
 		return new ObservationGrpcServerInterceptor(observationRegistry);
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@ConditionalOnClass(name = "io.grpc.kotlin.AbstractCoroutineStub")
+	static class GrpcServerCoroutineStubConfiguration {
+
+		@Bean
+		@Order(10)
+		@GlobalServerInterceptor
+		ObservationCoroutineContextServerInterceptor observationCoroutineGrpcServerInterceptor(
+				ObservationRegistry observationRegistry) {
+			return new ObservationCoroutineContextServerInterceptor(observationRegistry);
+		}
+
 	}
 
 }
