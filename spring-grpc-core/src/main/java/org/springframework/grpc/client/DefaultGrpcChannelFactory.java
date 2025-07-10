@@ -92,7 +92,7 @@ public class DefaultGrpcChannelFactory<T extends ManagedChannelBuilder<T>>
 
 	@Override
 	public boolean supports(ClientInterceptor interceptor) {
-		return this.interceptorFilter == null || this.interceptorFilter.filter(interceptor, this);
+		return this.interceptorFilter == null || this.interceptorFilter.filter(interceptor);
 	}
 
 	public void setVirtualTargets(VirtualTargets targets) {

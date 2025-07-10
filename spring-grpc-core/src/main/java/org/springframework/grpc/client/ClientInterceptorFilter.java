@@ -30,10 +30,9 @@ public interface ClientInterceptorFilter {
 	 * Determine whether the given {@link ClientInterceptor} should be included for the
 	 * provided {@link GrpcChannelFactory}.
 	 * @param interceptor the client interceptor under consideration.
-	 * @param channelFactory the channel factory in use.
 	 * @return {@code true} if the interceptor should be included; {@code false}
 	 * otherwise.
 	 */
-	boolean filter(ClientInterceptor interceptor, GrpcChannelFactory channelFactory);
+	boolean filter(ClientInterceptor interceptor);
 
 }

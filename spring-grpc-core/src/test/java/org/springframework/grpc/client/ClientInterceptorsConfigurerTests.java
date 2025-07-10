@@ -177,8 +177,8 @@ class ClientInterceptorsConfigurerTests {
 		@Test
 		void whenFilterExcludesOneGlobalInterceptor_thenBuilderGetsOnlyAllowedOnes() {
 			ManagedChannelBuilder<?> builder = Mockito.mock();
-			ClientInterceptorFilter filter = (interceptor,
-					__) -> interceptor == GlobalClientInterceptorsConfig.GLOBAL_INTERCEPTOR_BAR;
+			ClientInterceptorFilter filter = (
+					interceptor) -> interceptor == GlobalClientInterceptorsConfig.GLOBAL_INTERCEPTOR_BAR;
 			ClientInterceptorsConfigurerTests.this.contextRunner()
 				.withUserConfiguration(GlobalClientInterceptorsConfig.class)
 				.run(context -> {
@@ -194,7 +194,7 @@ class ClientInterceptorsConfigurerTests {
 		@Test
 		void whenFilterIncludesAllGlobalInterceptors_thenBuilderGetsOnlyAllowedOnes() {
 			ManagedChannelBuilder<?> builder = Mockito.mock();
-			ClientInterceptorFilter filter = (interceptor, __) -> true;
+			ClientInterceptorFilter filter = (interceptor) -> true;
 			ClientInterceptorsConfigurerTests.this.contextRunner()
 				.withUserConfiguration(GlobalClientInterceptorsConfig.class)
 				.run(context -> {
