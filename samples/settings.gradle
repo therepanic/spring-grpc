@@ -15,5 +15,6 @@ include 'grpc-server-netty-shaded'
 include 'grpc-tomcat'
 include 'grpc-tomcat-secure'
 include 'grpc-webflux'
+include 'grpc-webflux-secure'
 
 rootProject.name = "spring-grpc-samples"

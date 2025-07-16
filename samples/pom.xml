@@ -26,6 +26,7 @@
 		<module>grpc-tomcat</module>
 		<module>grpc-tomcat-secure</module>
 		<module>grpc-webflux</module>
+		<module>grpc-webflux-secure</module>
 	</modules>
 
 	<build>
