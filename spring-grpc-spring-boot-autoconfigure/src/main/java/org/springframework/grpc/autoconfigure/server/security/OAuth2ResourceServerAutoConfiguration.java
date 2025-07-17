@@ -38,6 +38,7 @@ import org.springframework.boot.autoconfigure.security.oauth2.resource.IssuerUri
 import org.springframework.boot.autoconfigure.security.oauth2.resource.KeyValueCondition;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.JwkSetUriJwtDecoderBuilderCustomizer;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.PropertyMapper;
@@ -73,13 +74,13 @@ import io.grpc.BindableService;
 
 // All copied from Spring Boot (https://github.com/spring-projects/spring-boot/issues/43978), except the
 // 2 @Beans of type AuthenticationProcessInterceptor
-@AutoConfiguration(before = { GrpcSecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class },
-		after = { GrpcServerFactoryAutoConfiguration.class,
-				org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration.class })
+@AutoConfiguration(before = { UserDetailsServiceAutoConfiguration.class }, after = { SecurityAutoConfiguration.class,
+		GrpcSecurityAutoConfiguration.class, GrpcServerFactoryAutoConfiguration.class,
+		org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration.class })
 @EnableConfigurationProperties(OAuth2ResourceServerProperties.class)
 @ConditionalOnClass({ BearerTokenAuthenticationToken.class, ObjectPostProcessor.class })
 @ConditionalOnMissingBean(GrpcServletConfiguration.class)
-@ConditionalOnBean(BindableService.class)
+@ConditionalOnBean({ BindableService.class, GrpcSecurityAutoConfiguration.class })
 @Import({ Oauth2ResourceServerConfiguration.JwtConfiguration.class,
 		Oauth2ResourceServerConfiguration.OpaqueTokenConfiguration.class })
 class OAuth2ResourceServerAutoConfiguration {
