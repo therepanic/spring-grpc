@@ -116,7 +116,7 @@ class OAuth2ResourceServerOpaqueTokenConfiguration {
 
 		@Bean
 		@ConditionalOnProperty(name = "spring.security.oauth2.resourceserver.opaquetoken.introspection-uri")
-		SpringOpaqueTokenIntrospector opaqueTokenIntrospector(OAuth2ResourceServerProperties properties) {
+		SpringOpaqueTokenIntrospector blockingOpaqueTokenIntrospector(OAuth2ResourceServerProperties properties) {
 			OAuth2ResourceServerProperties.Opaquetoken opaqueToken = properties.getOpaquetoken();
 			return new SpringOpaqueTokenIntrospector(opaqueToken.getIntrospectionUri(), opaqueToken.getClientId(),
 					opaqueToken.getClientSecret());
@@ -161,7 +161,7 @@ class OAuth2ResourceServerJwtConfiguration {
 
 		@Bean
 		@ConditionalOnProperty(name = "spring.security.oauth2.resourceserver.jwt.jwk-set-uri")
-		JwtDecoder jwtDecoderByJwkKeySetUri(ObjectProvider<JwkSetUriJwtDecoderBuilderCustomizer> customizers) {
+		JwtDecoder blockingJwtDecoderByJwkKeySetUri(ObjectProvider<JwkSetUriJwtDecoderBuilderCustomizer> customizers) {
 			JwkSetUriJwtDecoderBuilder builder = NimbusJwtDecoder.withJwkSetUri(this.properties.getJwkSetUri())
 				.jwsAlgorithms(this::jwsAlgorithms);
 			customizers.orderedStream().forEach((customizer) -> customizer.customize(builder));
@@ -203,7 +203,7 @@ class OAuth2ResourceServerJwtConfiguration {
 
 		@Bean
 		@Conditional(KeyValueCondition.class)
-		JwtDecoder jwtDecoderByPublicKeyValue() throws Exception {
+		JwtDecoder blockingJwtDecoderByPublicKeyValue() throws Exception {
 			RSAPublicKey publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA")
 				.generatePublic(new X509EncodedKeySpec(getKeySpec(this.properties.readPublicKey())));
 			NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(publicKey)
@@ -231,7 +231,8 @@ class OAuth2ResourceServerJwtConfiguration {
 
 		@Bean
 		@Conditional(IssuerUriCondition.class)
-		SupplierJwtDecoder jwtDecoderByIssuerUri(ObjectProvider<JwkSetUriJwtDecoderBuilderCustomizer> customizers) {
+		SupplierJwtDecoder blockingJwtDecoderByIssuerUri(
+				ObjectProvider<JwkSetUriJwtDecoderBuilderCustomizer> customizers) {
 			return new SupplierJwtDecoder(() -> {
 				String issuerUri = this.properties.getIssuerUri();
 				JwkSetUriJwtDecoderBuilder builder = NimbusJwtDecoder.withIssuerLocation(issuerUri);

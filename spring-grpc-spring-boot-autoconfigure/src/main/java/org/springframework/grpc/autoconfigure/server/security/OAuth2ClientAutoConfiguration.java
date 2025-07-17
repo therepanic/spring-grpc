@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.security.oauth2.client.ClientsConfiguredCondition;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
@@ -36,6 +37,7 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 @AutoConfiguration(
 		after = org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration.class)
 @Configuration(proxyBeanMethods = false)
+@ConditionalOnClass(InMemoryClientRegistrationRepository.class)
 @Conditional(ClientsConfiguredCondition.class)
 @EnableConfigurationProperties(OAuth2ClientProperties.class)
 public class OAuth2ClientAutoConfiguration {

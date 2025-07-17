@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -30,7 +30,6 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import io.grpc.Status.Code;
 import io.grpc.StatusRuntimeException;
-import io.grpc.reflection.v1.ServerReflectionGrpc;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT,
 		properties = { "spring.grpc.client.default-channel.address=0.0.0.0:${local.grpc.port}",
@@ -39,7 +38,7 @@ import io.grpc.reflection.v1.ServerReflectionGrpc;
 public class GrpcServerApplicationTests {
 
 	public static void main(String[] args) {
-		new SpringApplicationBuilder(GrpcServerApplication.class).run(args);
+		SpringApplication.from(GrpcServerApplication::main).with(ExtraConfiguration.class).run(args);
 	}
 
 	@Autowired
@@ -70,8 +69,7 @@ public class GrpcServerApplicationTests {
 
 	@TestConfiguration(proxyBeanMethods = false)
 	@EnableDynamicProperty
-	@ImportGrpcClients(target = "stub",
-			types = { SimpleGrpc.SimpleBlockingStub.class, ServerReflectionGrpc.ServerReflectionStub.class })
+	@ImportGrpcClients(target = "stub", types = { SimpleGrpc.SimpleBlockingStub.class })
 	@ImportGrpcClients(target = "secure", prefix = "secure", types = { SimpleGrpc.SimpleBlockingStub.class })
 	static class ExtraConfiguration {
 
